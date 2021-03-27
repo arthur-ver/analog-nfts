@@ -1,10 +1,9 @@
 import Link from 'next/link'
 import { useCallback, useState, useEffect } from 'react'
 import { useZora } from './ZoraProvider'
-import Web3 from 'web3'
 
 function Header () {
-    const { address } = useZora()
+    const { address, disp_address, identicon } = useZora()
 
     return (
         <header className="flex justify-between items-centered border-b border-gray-500 pt-4 pl-6 pr-6 pb-4">
@@ -22,7 +21,10 @@ function Header () {
                     <a className="ext-gray-500 font-medium hover:underline">FAQ</a>
                 </Link>
                 {address ? (
-                    <span>{address}</span>
+                    <div className="flex items-center space-x-3">
+                        <div className="w-8 h-8 bg-cover bg-no-repeat rounded-sm" style={{backgroundImage: `url(${identicon})`}}></div>
+                        <span>{disp_address}</span>
+                    </div>
                 ) : (
                     <button className="bg-blue-500 hover:bg-blue-700 text-white py-2 px-4 rounded">Connect to MetaMask</button>
                 )}
