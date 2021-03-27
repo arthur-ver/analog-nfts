@@ -1,0 +1,21 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model nft {
+  id          Int       @default(autoincrement()) @id
+  tokenId     Int
+  photoCID    String
+  metadataCID String
+  creator     String    @db.VarChar(42)
+  createdAt   DateTime  @default(now())
+}

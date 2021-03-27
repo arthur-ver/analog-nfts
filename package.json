@@ -10,6 +10,7 @@
   "dependencies": {
     "@dicebear/avatars": "^4.5.4",
     "@dicebear/avatars-identicon-sprites": "^4.5.4",
+    "@prisma/client": "^2.19.0",
     "@walletconnect/web3-provider": "^1.4.0",
     "@zoralabs/zdk": "^1.0.8",
     "ethers": "^5.0.32",
@@ -23,6 +24,7 @@
     "@types/react": "^17.0.3",
     "autoprefixer": "^10.2.5",
     "postcss": "^8.2.8",
+    "prisma": "^2.19.0",
     "tailwindcss": "^2.0.4",
     "typescript": "^4.2.3"
   }
