@@ -11,6 +11,12 @@ vercel dev
 Link to existing project: yes/[no]
 ```
 
+## Create .env in the root directory
+```
+NEXT_PUBLIC_CHAIN_ID="4"
+NEXT_PUBLIC_INFURA_ID="<YOUR_INFURA_ID>"
+```
+
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
 ## Learn More
