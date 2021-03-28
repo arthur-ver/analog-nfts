@@ -17,7 +17,7 @@ function Header () {
     }, [authenticate])
 
     return (
-        <header className="flex justify-between items-centered border-b border-gray-500 pt-4 pl-6 pr-6 pb-4">
+        <header className="sticky top-0 bg-white flex justify-between items-centered border-b border-gray-500 pt-4 pl-6 pr-6 pb-4">
             <div className="flex items-center space-x-3">
                 <Link href="/">
                     <a><span className="font-bold text-2xl">ANALOG</span></a>
