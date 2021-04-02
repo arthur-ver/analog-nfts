@@ -5,6 +5,7 @@ export interface INFT {
     metadataCID: string
     creator: string
     createdAt: string
+    identicon?: string
 }
 
 export interface IFetch {
