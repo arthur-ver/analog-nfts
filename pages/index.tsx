@@ -66,7 +66,7 @@ const Index = ({ items }: InferGetServerSidePropsType<typeof getServerSideProps>
                     loader={<h4>Loading...</h4>}>
                         {nfts.map((nft: INFT, index) => (
                             <div key={index} className="border border-gray-300 p-4 transition hover:shadow-md">
-                                <Link href="/item/#">
+                                <Link key={nft.tokenId} href={`/item/${encodeURIComponent(nft.tokenId)}`}>
                                     <a>
                                         <IKImage className="w-full" 
                                         path={nft.photoCDN} transformation={[{"height": "900","width": "720"}]}
@@ -75,7 +75,7 @@ const Index = ({ items }: InferGetServerSidePropsType<typeof getServerSideProps>
                                     </a>
                                 </Link>
                                 <div className="flex flex-col pt-8 space-y-4 prose">
-                                    <Link href="/">
+                                    <Link key={nft.tokenId} href={`/item/${encodeURIComponent(nft.tokenId)}`}>
                                         <a className="self-start no-underline hover:underline"><h2 className="m-0">{nft.title}</h2></a>
                                     </Link>
                                     {nft.description.length > 70 ? (
@@ -83,7 +83,7 @@ const Index = ({ items }: InferGetServerSidePropsType<typeof getServerSideProps>
                                     ) : (
                                         <p className="flex-grow text-sm min-h-4">{nft.description}</p>
                                     )}
-                                    <span className="self-end inline-flex items-center justify-center px-2 py-1 text-xs leading-none text-gray-400 bg-gray-100 rounded-full">{moment(nft.createdAt).format('L')}</span>
+                                    <span className="self-end inline-flex items-center justify-center px-3 py-1 text-xs leading-none text-gray-400 bg-gray-100 rounded-full">{moment(nft.createdAt).format('L')}</span>
                                     <div className="flex flex-row justify-between items-center text-sm">
                                         <div>creator:</div>
                                         <div className="flex flex-row items-center space-x-3">

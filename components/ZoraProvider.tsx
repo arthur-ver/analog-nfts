@@ -45,7 +45,7 @@ function ZoraProvider({children}: ZoraProviderProps) {
             setSigner(undefined)
         } else if (accounts[0] !== address) {
             let address: string = accounts[0]
-            let disp_address: string = `${address.substring(0, 7)}...${address.substring(address.length - 5)}`
+            let disp_address: string = `${address.substring(0, 5)}...${address.substring(address.length - 3)}`
             let identicon: string = avatars.create(address)
             let signer: ethers.providers.JsonRpcSigner = new ethers.providers.Web3Provider(window.ethereum).getSigner()
             let zora: Zora = new Zora(signer, chainId)

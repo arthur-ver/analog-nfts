@@ -13,6 +13,6 @@ export interface INFT {
 
 export interface IFetch {
     nfts: INFT[]
-    count: number
+    count?: number
     error?: { message: string }
 }

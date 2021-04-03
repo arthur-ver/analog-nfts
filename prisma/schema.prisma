@@ -13,7 +13,7 @@ generator client {
 
 model nft {
   id          Int       @default(autoincrement()) @id
-  tokenId     Int
+  tokenId     Int       @unique
   photoCID    String    @db.VarChar(255)
   metadataCID String    @db.VarChar(255)
   photoCDN    String    @db.VarChar(255)
