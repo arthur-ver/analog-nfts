@@ -1,7 +1,10 @@
 export interface INFT {
     id: number
     tokenId: string
+    title: string
+    description: string
     photoCID: string
+    photoCDN: string
     metadataCID: string
     creator: string
     createdAt: string

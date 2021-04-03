@@ -1,25 +1,23 @@
-import {Fragment} from 'react'
-import React, { useState, useEffect, FunctionComponent } from 'react'
+import { Fragment } from 'react'
+import React, { useState, useEffect } from 'react'
 import Head from 'next/head'
-import { Container, Header, Footer } from '../components/Layout'
+import Link from 'next/link'
+import { InferGetServerSidePropsType } from 'next'
+import { Header, Footer } from '../components/Layout'
 import prefixURL from '../util/prefix'
 import InfiniteScroll from 'react-infinite-scroll-component'
 import { INFT, IFetch } from '../util/types'
-import { IKImage, IKContext, IKUpload } from 'imagekitio-react'
+import { IKImage, IKContext } from 'imagekitio-react'
 import Avatars from '@dicebear/avatars'
 import sprites from '@dicebear/avatars-identicon-sprites'
+import moment from 'moment'
 
-const Index: FunctionComponent<{items: IFetch}>  = ({ items }) => {
-
+const Index = ({ items }: InferGetServerSidePropsType<typeof getServerSideProps>) => {
     const [nfts, setNFTs] = useState<Array<INFT> | []>([])
     const [cursor, setCursor] = useState<number | undefined>(undefined)
     const [EOL, setEOL] = useState<boolean>(false)
 
-    let options = {
-        dataUri: true,
-        background: '#ececec'
-
-    }
+    let options = { dataUri: true, background: '#ececec' }
     let avatars = new Avatars(sprites, options)
 
     useEffect(() => {
@@ -66,20 +64,31 @@ const Index: FunctionComponent<{items: IFetch}>  = ({ items }) => {
                     next={fetchMoreData}
                     hasMore={!EOL}
                     loader={<h4>Loading...</h4>}>
-                        {nfts.map((nft, index) => (
-                            <div key={index} className="border border-gray-300 p-4">
-                                <IKImage className="w-full" 
-                                path={nft.photoCDN} transformation={[{"height": "900","width": "720"}]}
-                                loading="lazy"
-                                lqip={{ active: true, blur: 10 }} />
-                                <div className="flex flex-col pt-8 prose h-72">
-                                    <h2>{nft.title}</h2>
-                                    <p className="flex-grow">{nft.description}</p>
-                                    <div className="flex flex-row justify-between items-center">
-                                        <div>by:</div>
-                                        <div className="flex flex-row items-center space-x-4">
+                        {nfts.map((nft: INFT, index) => (
+                            <div key={index} className="border border-gray-300 p-4 transition hover:shadow-md">
+                                <Link href="/item/#">
+                                    <a>
+                                        <IKImage className="w-full" 
+                                        path={nft.photoCDN} transformation={[{"height": "900","width": "720"}]}
+                                        loading="lazy"
+                                        lqip={{ active: true, blur: 10 }} />
+                                    </a>
+                                </Link>
+                                <div className="flex flex-col pt-8 space-y-4 prose">
+                                    <Link href="/">
+                                        <a className="self-start no-underline hover:underline"><h2 className="m-0">{nft.title}</h2></a>
+                                    </Link>
+                                    {nft.description.length > 70 ? (
+                                        <p className="flex-grow text-sm min-h-4">{nft.description.substring(0, 70)}...</p>
+                                    ) : (
+                                        <p className="flex-grow text-sm min-h-4">{nft.description}</p>
+                                    )}
+                                    <span className="self-end inline-flex items-center justify-center px-2 py-1 text-xs leading-none text-gray-400 bg-gray-100 rounded-full">{moment(nft.createdAt).format('L')}</span>
+                                    <div className="flex flex-row justify-between items-center text-sm">
+                                        <div>creator:</div>
+                                        <div className="flex flex-row items-center space-x-3">
                                             <div className="w-7 h-7 bg-cover bg-no-repeat rounded-sm rounded-full" style={{backgroundImage: `url(${nft.identicon})`}}></div>
-                                            <div>{nft.creator.substring(0, 7)}...{nft.creator.substring(nft.creator.length - 5)}</div>
+                                            <div>{nft.creator.substring(0, 5)}...{nft.creator.substring(nft.creator.length - 3)}</div>
                                         </div>
                                     </div>
                                 </div>

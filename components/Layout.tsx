@@ -55,10 +55,4 @@ const Footer = () => (
     <h1>H1</h1>
 )
 
-
-const Container = () => (
-    <h1>H1</h1>
-)
-
-
-export { Header, Footer, Container }
+export { Header, Footer }

@@ -6,7 +6,6 @@ const prisma = new PrismaClient()
 export default async (req: NextApiRequest, res: NextApiResponse) => {
     const { query: { cursor } } = req
     return new Promise(function (resolve, reject){
-        console.log(cursor)
         if (cursor === 'null') {
             prisma.$transaction([
                 prisma.nft.findMany({
