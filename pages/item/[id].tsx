@@ -6,6 +6,7 @@ import { IFetch, INFT } from '../../util/types'
 import { PrismaClient } from '@prisma/client'
 import { useRouter } from 'next/router'
 import safeJsonStringify from 'safe-json-stringify'
+import { IKImage, IKContext } from 'imagekitio-react'
 
 const NFT = ({ nft }: InferGetStaticPropsType<typeof getStaticProps>) => {
     const router = useRouter()
@@ -19,8 +20,17 @@ const NFT = ({ nft }: InferGetStaticPropsType<typeof getStaticProps>) => {
                     <title>ANALOG NFTs</title>
                 </Head>
                 <Header />
-                <main>
-                    {JSON.stringify(nft)}
+                <main className="container mx-auto px-4 py-24 space-y-32">
+                    <section className="grid grid-cols-1 md:grid-cols-2 gap-16">
+                        <div>
+                            <IKContext urlEndpoint={`https://ik.imagekit.io/${process.env.NEXT_PUBLIC_IK_CONTEXT}/`}>
+                                <IKImage className="w-full" 
+                                    path={nft.photoCDN}
+                                    loading="lazy"
+                                    lqip={{ active: true, blur: 10 }} />
+                            </IKContext>
+                        </div>
+                    </section>
                 </main>
             </Fragment>
         )

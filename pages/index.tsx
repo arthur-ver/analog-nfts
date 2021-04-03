@@ -56,7 +56,8 @@ const Index = ({ items }: InferGetServerSidePropsType<typeof getServerSideProps>
             </Head>
             <Header />
             <main>
-                <IKContext urlEndpoint="https://ik.imagekit.io/eguuexqwdlq/">
+            <p>{process.env.NEXT_IK_CONTEXT}</p>
+                <IKContext urlEndpoint={`https://ik.imagekit.io/${process.env.NEXT_PUBLIC_IK_CONTEXT}/`}>
                     <InfiniteScroll
                     className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-0"
                     scrollThreshold="400px"

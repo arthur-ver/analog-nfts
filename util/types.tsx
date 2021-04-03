@@ -1,13 +1,13 @@
 export interface INFT {
     id: number
-    tokenId: string
+    tokenId: number
     title: string
     description: string
     photoCID: string
     photoCDN: string
     metadataCID: string
     creator: string
-    createdAt: string
+    createdAt: Date
     identicon?: string
 }
 
