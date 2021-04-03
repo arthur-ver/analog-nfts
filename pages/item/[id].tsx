@@ -2,7 +2,7 @@ import { Fragment } from 'react'
 import { InferGetStaticPropsType } from 'next'
 import Head from 'next/head'
 import { Header, Footer } from '../../components/Layout'
-import { IFetch, INFT } from '../../util/types'
+import { INFT } from '../../util/types'
 import { PrismaClient } from '@prisma/client'
 import { useRouter } from 'next/router'
 import safeJsonStringify from 'safe-json-stringify'
@@ -29,6 +29,14 @@ const NFT = ({ nft }: InferGetStaticPropsType<typeof getStaticProps>) => {
                                     loading="lazy"
                                     lqip={{ active: true, blur: 10 }} />
                             </IKContext>
+                        </div>
+                        <div className="prose">
+                            <div className="space-y-8">
+                                <div className="space-y-4 pt-12">
+                                    <h1>{nft.title}</h1>
+                                    <p className="text-gray-400">{nft.description}</p>
+                                </div>
+                            </div>
                         </div>
                     </section>
                 </main>
