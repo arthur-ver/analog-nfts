@@ -2,7 +2,7 @@ import Link from 'next/link'
 import { useCallback, useState } from 'react'
 import { useZora } from './ZoraProvider'
 
-function Header () {
+const Header = () => {
     const [loading, setLoading] = useState(false)
     const { address, disp_address, identicon, authenticate } = useZora()
 
