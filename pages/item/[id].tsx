@@ -7,6 +7,7 @@ import { PrismaClient } from '@prisma/client'
 import { useRouter } from 'next/router'
 import safeJsonStringify from 'safe-json-stringify'
 import { IKImage, IKContext } from 'imagekitio-react'
+import { NFTInfo } from '../../components/NFTInfo'
 
 const NFT = ({ nft }: InferGetStaticPropsType<typeof getStaticProps>) => {
     const router = useRouter()
@@ -17,7 +18,7 @@ const NFT = ({ nft }: InferGetStaticPropsType<typeof getStaticProps>) => {
         return(
             <Fragment>
                 <Head>
-                    <title>ANALOG NFTs</title>
+                    <title>ANALOG NFTs – {nft.title}</title>
                 </Head>
                 <Header />
                 <main className="container mx-auto px-4 py-24 space-y-32">
@@ -30,12 +31,15 @@ const NFT = ({ nft }: InferGetStaticPropsType<typeof getStaticProps>) => {
                                     lqip={{ active: true, blur: 10 }} />
                             </IKContext>
                         </div>
-                        <div className="prose">
+                        <div className="prose space-y-12">
                             <div className="space-y-8">
                                 <div className="space-y-4 pt-12">
                                     <h1>{nft.title}</h1>
                                     <p className="text-gray-400">{nft.description}</p>
                                 </div>
+                            </div>
+                            <div>
+                                <NFTInfo nft={ nft }/>
                             </div>
                         </div>
                     </section>
