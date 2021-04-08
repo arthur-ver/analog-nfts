@@ -3,11 +3,11 @@ import { InferGetStaticPropsType } from 'next'
 import Head from 'next/head'
 import { Header, Footer } from '../../components/Layout'
 import { INFT } from '../../util/types'
-import { PrismaClient } from '@prisma/client'
 import { useRouter } from 'next/router'
 import safeJsonStringify from 'safe-json-stringify'
 import { IKImage, IKContext } from 'imagekitio-react'
 import { NFTInfo } from '../../components/NFTInfo'
+import prisma from '../../lib/prisma'
 
 const NFT = ({ nft }: InferGetStaticPropsType<typeof getStaticProps>) => {
     const router = useRouter()
@@ -70,9 +70,7 @@ export const getStaticPaths = async () => {
             })
 }
 
-export const getStaticProps = async ({ params }) => {
-    const prisma = new PrismaClient()
-    
+export const getStaticProps = async ({ params }) => {    
     const query = async () => {
         const fetchedObj = await prisma.nft.findMany({
             where: { tokenId: Number(params.id) },

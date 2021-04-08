@@ -1,8 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
-import { PrismaClient } from '@prisma/client'
+import prisma from '../../lib/prisma'
 import { INFT } from '../../util/types'
-
-const prisma = new PrismaClient()
 
 export default (req: NextApiRequest, res: NextApiResponse) => {
     const { query: { cursor } } = req
