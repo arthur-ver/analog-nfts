@@ -49,8 +49,6 @@ const NFT = ({ nft }: InferGetStaticPropsType<typeof getStaticProps>) => {
 }
 
 export const getStaticPaths = async () => {
-    const prisma = new PrismaClient()
-
     const query = async () => {
         const tokens = await prisma.nft.findMany({
             select: { tokenId: true, },
