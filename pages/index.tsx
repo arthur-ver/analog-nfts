@@ -22,7 +22,7 @@ const Index = ({ items }: InferGetServerSidePropsType<typeof getServerSideProps>
     let avatars = new Avatars(sprites, options)
 
     useEffect(() => {
-        if (items) {
+        if (items.nfts.length > 0) {
             if (items.error) return
             let cursor_: number = items.nfts.slice(-1).pop().id - 1
             items.nfts.forEach(el => el.identicon = avatars.create(el.creator))
