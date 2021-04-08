@@ -63,9 +63,6 @@ export const getStaticPaths = async () => {
 
     return query()
             .catch(e => { throw e })
-            .finally(async () => {
-                await prisma.$disconnect()
-            })
 }
 
 export const getStaticProps = async ({ params }) => {    
@@ -82,9 +79,6 @@ export const getStaticProps = async ({ params }) => {
 
     return query()
             .catch(e => { throw e })
-            .finally(async () => {
-                await prisma.$disconnect()
-            })
 }
 
 export default NFT
