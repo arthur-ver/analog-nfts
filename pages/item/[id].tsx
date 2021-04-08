@@ -38,9 +38,6 @@ const NFT = ({ nft }: InferGetStaticPropsType<typeof getStaticProps>) => {
                                     <p className="text-gray-400">{nft.description}</p>
                                 </div>
                             </div>
-                            <div>
-                                <NFTInfo nft={ nft }/>
-                            </div>
                         </div>
                     </section>
                 </main>

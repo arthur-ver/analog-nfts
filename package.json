@@ -33,6 +33,9 @@
     "typescript": "^4.2.3"
   },
   "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
     "postinstall": "prisma generate"
   }
 }
