@@ -38,6 +38,7 @@ const NFT = ({ nft }: InferGetStaticPropsType<typeof getStaticProps>) => {
                                     <p className="text-gray-400">{nft.description}</p>
                                 </div>
                             </div>
+                            <NFTInfo {...nft}/>
                         </div>
                     </section>
                 </main>
@@ -60,6 +61,10 @@ export const getStaticPaths = async () => {
 
     return query()
             .catch(e => { throw e })
+            .finally(async () => {
+                if(process.env.NODE_ENV == 'development')
+                    await prisma.$disconnect()
+            })
 }
 
 export const getStaticProps = async ({ params }) => {    
@@ -76,6 +81,10 @@ export const getStaticProps = async ({ params }) => {
 
     return query()
             .catch(e => { throw e })
+            .finally(async () => {
+                if(process.env.NODE_ENV == 'development')
+                    await prisma.$disconnect()
+            })
 }
 
 export default NFT

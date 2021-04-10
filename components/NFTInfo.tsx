@@ -5,7 +5,7 @@ import Avatars from '@dicebear/avatars'
 import sprites from '@dicebear/avatars-identicon-sprites'
 import React, { useState, useEffect } from 'react'
 
-const NFTInfo = ({ nft }: { nft: INFT }) => {
+const NFTInfo = (nft: INFT) => {
     const [creatorAvatar, setCreator] = useState<string | undefined>(undefined)
     const [ownerAvatar, setOwner] = useState<string | undefined>(undefined)
 
