@@ -8,8 +8,13 @@ import safeJsonStringify from 'safe-json-stringify'
 import { IKImage, IKContext } from 'imagekitio-react'
 import { NFTInfo } from '../../components/NFTInfo'
 import prisma from '../../lib/prisma'
+import Avatars from '@dicebear/avatars'
+import sprites from '@dicebear/avatars-identicon-sprites'
 
-const NFT = ({ nft }: InferGetStaticPropsType<typeof getStaticProps>) => {
+const options = { dataUri: true, background: '#ececec' }
+const avatars = new Avatars(sprites, options)
+
+const NFT = ({ nft, creatorAvatar }: InferGetStaticPropsType<typeof getStaticProps>) => {
     const router = useRouter()
 
     if (router.isFallback)
@@ -38,6 +43,7 @@ const NFT = ({ nft }: InferGetStaticPropsType<typeof getStaticProps>) => {
                                     <p className="text-gray-400">{nft.description}</p>
                                 </div>
                             </div>
+                            <NFTInfo nft={nft} creatorAvatar={creatorAvatar} />
                         </div>
                     </section>
                 </main>
@@ -76,7 +82,9 @@ export const getStaticProps = async ({ params }) => {
         const stringifiedData = safeJsonStringify(fetchedObj[0]);
         const nft: INFT = JSON.parse(stringifiedData);
 
-        return { props: { nft } }
+        const creatorAvatar = avatars.create(nft.creator)
+
+        return { props: { nft, creatorAvatar } }
     }
 
     return query()
