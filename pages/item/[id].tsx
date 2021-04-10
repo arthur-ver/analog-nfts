@@ -18,9 +18,11 @@ const avatars = new Avatars(sprites, options)
 const NFT = ({ nft, creatorAvatar }: InferGetStaticPropsType<typeof getStaticProps>) => {
     const router = useRouter()
 
+    console.log(nft == null ? true : false)
+
     if (router.isFallback)
         return <div>Loading...</div>
-    else if (!nft)
+    else if (nft === null)
         return <>
             <Head>
                 <meta name="robots" content="noindex" />
@@ -85,7 +87,7 @@ export const getStaticProps = async ({ params }) => {
         let nft: INFT | null = null
         let creatorAvatar: string | null = null
 
-        if (!Number.isInteger(params.id))
+        if (!/^\d+$/.test(params.id))                   // Check if params.id is a valid number
             return { props: { nft, creatorAvatar } }
 
         const fetchedObj = await prisma.nft.findMany({
