@@ -10,6 +10,7 @@ import { NFTInfo } from '../../components/NFTInfo'
 import prisma from '../../lib/prisma'
 import Avatars from '@dicebear/avatars'
 import sprites from '@dicebear/avatars-identicon-sprites'
+import DefaultErrorPage from 'next/error'
 
 const options = { dataUri: true, background: '#ececec' }
 const avatars = new Avatars(sprites, options)
@@ -19,6 +20,13 @@ const NFT = ({ nft, creatorAvatar }: InferGetStaticPropsType<typeof getStaticPro
 
     if (router.isFallback)
         return <div>Loading...</div>
+    else if (!nft)
+        return <>
+            <Head>
+                <meta name="robots" content="noindex" />
+            </Head>
+            <DefaultErrorPage statusCode={404} />
+        </>
     else
         return(
             <Fragment>
@@ -74,15 +82,23 @@ export const getStaticPaths = async () => {
 
 export const getStaticProps = async ({ params }) => {    
     const query = async () => {
-        console.log("################", params.id)
+        let nft: INFT | null = null
+        let creatorAvatar: string | null = null
+
+        if (!Number.isInteger(params.id))
+            return { props: { nft, creatorAvatar } }
+
         const fetchedObj = await prisma.nft.findMany({
             where: { tokenId: Number(params.id) },
         })
 
-        const stringifiedData = safeJsonStringify(fetchedObj[0]);
-        const nft: INFT = JSON.parse(stringifiedData);
+        if (fetchedObj.length === 0)
+            return { props: { nft, creatorAvatar } }
 
-        const creatorAvatar = avatars.create(nft.creator)
+        const stringifiedData = safeJsonStringify(fetchedObj[0])
+        
+        nft = JSON.parse(stringifiedData)
+        creatorAvatar = avatars.create(nft.creator)
 
         return { props: { nft, creatorAvatar } }
     }

@@ -3,9 +3,6 @@ import moment from 'moment'
 import { PhotographIcon, DocumentIcon } from '@heroicons/react/outline'
 
 const NFTInfo = ({ nft, creatorAvatar }: { nft: INFT, creatorAvatar: string }) => {
-
-    console.log("..........", nft)
-
     return (
         <div className="bg-white shadow overflow-hidden sm:rounded-lg">
             <div className="border-t border-gray-200">
