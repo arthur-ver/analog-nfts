@@ -12,6 +12,8 @@ const NFTInfo = (nft: INFT) => {
     let options = { dataUri: true, background: '#ececec' }
     let avatars = new Avatars(sprites, options)
 
+    console.log("..........", nft)
+
     useEffect(() => {
         setCreator(avatars.create(nft.creator))
         setOwner(avatars.create(nft.creator))

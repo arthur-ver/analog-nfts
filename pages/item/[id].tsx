@@ -69,6 +69,7 @@ export const getStaticPaths = async () => {
 
 export const getStaticProps = async ({ params }) => {    
     const query = async () => {
+        console.log("################", params.id)
         const fetchedObj = await prisma.nft.findMany({
             where: { tokenId: Number(params.id) },
         })
