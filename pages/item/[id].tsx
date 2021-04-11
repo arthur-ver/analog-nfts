@@ -17,9 +17,7 @@ const avatars = new Avatars(sprites, options)
 
 const NFT = ({ nft, creatorAvatar }: InferGetStaticPropsType<typeof getStaticProps>) => {
     const router = useRouter()
-
-    console.log(nft == null ? true : false)
-
+    
     if (router.isFallback)
         return <div>Loading...</div>
     else if (nft === null)
