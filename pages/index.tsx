@@ -57,8 +57,7 @@ const Index = ({ items }: InferGetServerSidePropsType<typeof getServerSideProps>
             </Head>
             <Header />
             <main>
-            <p>{process.env.NEXT_IK_CONTEXT}</p>
-                <IKContext urlEndpoint={`https://ik.imagekit.io/${process.env.NEXT_PUBLIC_IK_CONTEXT}/`}>
+                <IKContext urlEndpoint={`https://ik.imagekit.io/${process.env.NEXT_PUBLIC_IMAGEKIT_ID}/`}>
                     <InfiniteScroll
                     scrollThreshold="400px"
                     dataLength={nfts.length}

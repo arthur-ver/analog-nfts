@@ -37,7 +37,7 @@ const NFT = ({ nft, creatorAvatar }: InferGetStaticPropsType<typeof getStaticPro
                 <main className="container mx-auto px-4 py-24 space-y-32">
                     <section className="grid grid-cols-1 md:grid-cols-2 gap-16">
                         <div>
-                            <IKContext urlEndpoint={`https://ik.imagekit.io/${process.env.NEXT_PUBLIC_IK_CONTEXT}/`}>
+                            <IKContext urlEndpoint={`https://ik.imagekit.io/${process.env.NEXT_PUBLIC_IMAGEKIT_ID}/`}>
                                 <IKImage className="w-full" 
                                     path={nft.photoCDN}
                                     loading="lazy"

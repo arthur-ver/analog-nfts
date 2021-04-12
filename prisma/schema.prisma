@@ -22,3 +22,19 @@ model nft {
   description String    @db.VarChar(255)
   createdAt   DateTime  @default(now())
 }
+
+model user {
+  id          String    @default(cuid())  @id
+  address     String    @db.VarChar(42)   @unique
+  email       String    @db.VarChar(255)  @unique
+  username    String    @db.VarChar(30)   @unique
+  invites     invite[]
+}
+
+model invite {
+  id          Int       @default(autoincrement()) @id
+  userId      String
+  user        user      @relation(fields:  [userId], references: [id])
+  code        String    @default(cuid())  @unique
+  valid       Boolean   @default(true)
+}

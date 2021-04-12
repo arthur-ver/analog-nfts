@@ -2,9 +2,14 @@ import Head from 'next/head'
 import { Header, Footer } from '../components/Layout'
 import { Fragment } from 'react'
 import React, { useState } from 'react'
+import { IKImage, IKContext, IKUpload } from 'imagekitio-react'
+import prefixURL from '../util/prefix'
 
 const Mint = () => {
     const [creatorShare, setCreatorShare] = useState(5)
+    const onSuccess = res => {
+        console.log("Success", res);
+    }
 
     return (
         <Fragment>
@@ -76,6 +81,12 @@ const Mint = () => {
                                                 <button onClick={(e) => setCreatorShare(10)} type="button" className={`bg-white py-2 px-3 border border-gray-300 rounded-md shadow-sm text-sm leading-4 font-medium hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 ${creatorShare == 10 ? 'bg-indigo-600 hover:bg-indigo-700 text-white' : 'text-gray-700'}`}>10</button>
                                                 <button onClick={(e) => setCreatorShare(15)} type="button" className={`bg-white py-2 px-3 border border-gray-300 rounded-md shadow-sm text-sm leading-4 font-medium hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 ${creatorShare == 15 ? 'bg-indigo-600 hover:bg-indigo-700 text-white' : 'text-gray-700'}`}>15</button>
                                             </div>
+                                        </div>
+                                        
+                                        <div>
+                                            <IKContext publicKey={process.env.NEXT_PUBLIC_IMAGEKIT_PUBLIC} urlEndpoint={`https://ik.imagekit.io/${process.env.NEXT_PUBLIC_IMAGEKIT_ID}/`} authenticationEndpoint={`${prefixURL}/api/imagekitAuth`}>
+                                                <IKUpload onSuccess={onSuccess} fileName="abc.jpg" tags={["tag1"]} useUniqueFileName={true} isPrivateFile= {false} />
+                                            </IKContext>
                                         </div>
                                     </div>
                                     <div className="px-4 py-3 bg-gray-50 text-right sm:px-6">
