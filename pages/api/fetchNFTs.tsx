@@ -28,6 +28,7 @@ export default (req: NextApiRequest, res: NextApiResponse) => {
 
         res.status(200).json({ nfts: tokens, count: count })
     }
+    
     return query(cursor)
         .catch(e => res.status(502).json({error: e}))
         .finally(async () => {

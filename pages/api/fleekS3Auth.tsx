@@ -8,7 +8,6 @@ const bucket = 'nfts-app-team-bucket'
 const generateRandomString = (length: number) => Math.random().toString(20).substr(2, length)
 
 const s3 = new S3({
-    apiVersion: '2006-03-01',
     accessKeyId: apiKey,
     secretAccessKey: apiSecret,
     endpoint: 'https://storageapi.fleek.co',
@@ -32,7 +31,7 @@ export default (req: NextApiRequest, res: NextApiResponse) => {
             })
             return getSignedUrl
                 .then(url => res.status(200).json({ url }))
-                .catch(err => res.status(502).json({error: err}))
+                .catch(err => res.status(502).json({ error: err }))
         } else {
             res.status(502).json({error: 'Bad gateway 502'})
         }

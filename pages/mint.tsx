@@ -1,15 +1,66 @@
 import Head from 'next/head'
 import { Header, Footer } from '../components/Layout'
-import { Fragment } from 'react'
+import { Fragment, useEffect, useCallback } from 'react'
 import React, { useState } from 'react'
-import { IKImage, IKContext, IKUpload } from 'imagekitio-react'
 import prefixURL from '../util/prefix'
+import { useZora } from '../components/ZoraProvider'
+import * as nsfwjs from 'nsfwjs'
+import { Dropzone } from '../components/Dropzone'
 
 const Mint = () => {
-    const [creatorShare, setCreatorShare] = useState(5)
-    const onSuccess = res => {
-        console.log("Success", res);
+    const { address } = useZora()
+    const [creatorShare, setCreatorShare] = useState<number>(5)
+    const [loading, setLoading] = useState<boolean>(true)
+    const [model, setModel] = useState<nsfwjs.NSFWJS | undefined>(undefined)
+    const [imagePreview, setImagePreview] = useState<any>(undefined)
+
+    const data = { creatorAddress: address }
+
+    const getSignedUrl = (): Promise<any> => {
+        return fetch(`${prefixURL}/api/fleekS3Auth`, {
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            method: 'POST',
+            body: JSON.stringify(data),
+        })
+        .then(res => res.json())
+        .then(
+            result => { return Promise.resolve(result) },
+            error => { return Promise.reject(error) }
+        )
     }
+
+    const upload = async () => {
+        getSignedUrl().then(res => console.log(res))
+    }
+
+    const nsfwCheck = async (e) => {
+        e.preventDefault()
+        if(imagePreview) {
+            const img = document.getElementById('preview-image') as HTMLImageElement
+            const predictions = await model.classify(img)
+            // Share results
+            console.log('Predictions: ', predictions)
+        }
+    }
+
+    useEffect(() => {
+        nsfwjs.load('/model/', { size: 299 }).then(model => {
+            setModel(model)
+            setLoading(false)
+        })
+    }, [])
+
+    const onDrop = useCallback(acceptedFiles => {
+        const file = acceptedFiles[0]
+        const reader = new FileReader()
+        const url = reader.readAsDataURL(file)
+        reader.onloadend = (e) => {
+            setImagePreview(reader.result)
+        }
+    }, [])
+
 
     return (
         <Fragment>
@@ -53,23 +104,8 @@ const Mint = () => {
                                             <label className="block text-sm font-medium text-gray-700">
                                                 Photo
                                             </label>
-                                            <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md">
-                                                <div className="space-y-1 text-center">
-                                                <svg className="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true">
-                                                    <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                                                </svg>
-                                                <div className="flex text-sm text-gray-600">
-                                                    <label htmlFor="file-upload" className="relative cursor-pointer bg-white rounded-md font-medium text-indigo-600 hover:text-indigo-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-indigo-500">
-                                                    <span>Upload a file</span>
-                                                    <input id="file-upload" name="file-upload" type="file" className="sr-only" />
-                                                    </label>
-                                                    <p className="pl-1">or drag and drop</p>
-                                                </div>
-                                                <p className="text-xs text-gray-500">
-                                                    PNG, JPG, GIF up to 10MB
-                                                </p>
-                                                </div>
-                                            </div>
+                                            <Dropzone onDrop={onDrop} />
+                                            <img id="preview-image" src={imagePreview} />
                                         </div>
 
                                         <div>
@@ -82,16 +118,10 @@ const Mint = () => {
                                                 <button onClick={(e) => setCreatorShare(15)} type="button" className={`bg-white py-2 px-3 border border-gray-300 rounded-md shadow-sm text-sm leading-4 font-medium hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 ${creatorShare == 15 ? 'bg-indigo-600 hover:bg-indigo-700 text-white' : 'text-gray-700'}`}>15</button>
                                             </div>
                                         </div>
-                                        
-                                        <div>
-                                            <IKContext publicKey={process.env.NEXT_PUBLIC_IMAGEKIT_PUBLIC} urlEndpoint={`https://ik.imagekit.io/${process.env.NEXT_PUBLIC_IMAGEKIT_ID}/`} authenticationEndpoint={`${prefixURL}/api/imagekitAuth`}>
-                                                <IKUpload onSuccess={onSuccess} fileName="abc.jpg" tags={["tag1"]} useUniqueFileName={true} isPrivateFile= {false} />
-                                            </IKContext>
-                                        </div>
                                     </div>
                                     <div className="px-4 py-3 bg-gray-50 text-right sm:px-6">
-                                        <button onClick={(e) => e.preventDefault()}type="submit" className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                                        Proceed to mint
+                                        <button onClick={(e) => nsfwCheck(e)} type="submit" className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50" disabled={loading}>
+                                        Upload image
                                         </button>
                                     </div>
                                 </div>
