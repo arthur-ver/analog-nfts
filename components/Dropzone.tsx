@@ -3,20 +3,41 @@ import { Fragment } from 'react'
 import { UploadIcon, PhotographIcon } from '@heroicons/react/outline'
 
 type Props = {
-    onDrop: (acceptedFiles: any) => void
+    onDrop: (acceptedFiles: any) => void,
+    imagePreview: any
 }
 
-const Dropzone = ({ onDrop }: Props) => {
+const thumb = {
+    display: 'inline-flex',
+    borderRadius: 2,
+    border: '1px solid #eaeaea',
+    marginBottom: 8,
+    marginRight: 8,
+    width: 100,
+    height: 100,
+    padding: 4,
+}
+  
+const thumbInner = {
+    display: 'flex',
+    minWidth: 0,
+    overflow: 'hidden'
+}
+
+const img = {
+    display: 'block',
+    maxWidth: 'initial',
+    height: '100%',
+    marginLeft: '50%',
+    transform: 'translateX(-50%)'
+}
+
+const Dropzone = ({ onDrop, imagePreview }: Props) => {
     const {getRootProps, getInputProps, isDragActive, acceptedFiles} = useDropzone({ onDrop, accept: 'image/jpeg, image/png', maxFiles: 1 })
     const files = acceptedFiles.map(file => { return(
-            <li key={file.name} className="pl-3 pr-4 py-3 flex items-center justify-between text-sm">
-                <div className="w-0 flex-1 flex items-center">
-                    <PhotographIcon className="flex-shrink-0 h-5 w-5 text-gray-400" />
-                    <span className="ml-2 flex-1 w-0 truncate">
-                    { file.name }
-                    </span>
-                </div>
-            </li>
+            <Fragment key={file.name} >
+                <img id="preview-image" src={imagePreview} />
+            </Fragment>
         )
     })
     
