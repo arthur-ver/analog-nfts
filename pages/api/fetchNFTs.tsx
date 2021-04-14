@@ -31,8 +31,4 @@ export default (req: NextApiRequest, res: NextApiResponse) => {
     
     return query(cursor)
         .catch(e => res.status(502).json({error: e}))
-        .finally(async () => {
-            if(process.env.NODE_ENV == 'development')
-                await prisma.$disconnect()
-        })
 }

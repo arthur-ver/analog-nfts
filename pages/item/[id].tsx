@@ -60,55 +60,40 @@ const NFT = ({ nft, creatorAvatar }: InferGetStaticPropsType<typeof getStaticPro
 }
 
 export const getStaticPaths = async () => {
-    const query = async () => {
-        const tokens = await prisma.nft.findMany({
-            select: { tokenId: true, },
-        })
+    const tokens = await prisma.nft.findMany({
+        select: { tokenId: true, },
+    })
 
-        const paths = tokens.map((token) => ({
-            params: { id: token.tokenId.toString() },
-        }))
+    const paths = tokens.map((token) => ({
+        params: { id: token.tokenId.toString() },
+    }))
 
-        return { paths, fallback: true }
-    }
+    return { paths, fallback: true }
 
-    return query()
-            .catch(e => { throw e })
-            .finally(async () => {
-                if(process.env.NODE_ENV == 'development')
-                    await prisma.$disconnect()
-            })
 }
 
-export const getStaticProps = async ({ params }) => {    
-    const query = async () => {
-        let nft: INFT | null = null
-        let creatorAvatar: string | null = null
+export const getStaticProps = async ({ params }) => {   
+    let nft: INFT | null = null
+    let creatorAvatar: string | null = null
 
-        if (!/^\d+$/.test(params.id))                   // Check if params.id is a valid number
-            return { props: { nft, creatorAvatar } }
-
+    if (!/^\d+$/.test(params.id)) {
+        return { props: { nft, creatorAvatar } }
+    } else {
         const fetchedObj = await prisma.nft.findMany({
             where: { tokenId: Number(params.id) },
         })
 
-        if (fetchedObj.length === 0)
+        if (fetchedObj.length === 0) {
             return { props: { nft, creatorAvatar } }
+        } else {
+            const stringifiedData = safeJsonStringify(fetchedObj[0])
 
-        const stringifiedData = safeJsonStringify(fetchedObj[0])
-        
-        nft = JSON.parse(stringifiedData)
-        creatorAvatar = avatars.create(nft.creator)
+            nft = JSON.parse(stringifiedData)
+            creatorAvatar = avatars.create(nft.creator)
 
-        return { props: { nft, creatorAvatar } }
+            return { props: { nft, creatorAvatar } }
+        }
     }
-
-    return query()
-            .catch(e => { throw e })
-            .finally(async () => {
-                if(process.env.NODE_ENV == 'development')
-                    await prisma.$disconnect()
-            })
 }
 
 export default NFT
