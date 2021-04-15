@@ -7,43 +7,18 @@ type Props = {
     imagePreview: any
 }
 
-const thumb = {
-    display: 'inline-flex',
-    borderRadius: 2,
-    border: '1px solid #eaeaea',
-    marginBottom: 8,
-    marginRight: 8,
-    width: 100,
-    height: 100,
-    padding: 4,
-}
-  
-const thumbInner = {
-    display: 'flex',
-    minWidth: 0,
-    overflow: 'hidden'
-}
-
-const img = {
-    display: 'block',
-    maxWidth: 'initial',
-    height: '100%',
-    marginLeft: '50%',
-    transform: 'translateX(-50%)'
-}
-
 const Dropzone = ({ onDrop, imagePreview }: Props) => {
     const {getRootProps, getInputProps, isDragActive, acceptedFiles} = useDropzone({ onDrop, accept: 'image/jpeg, image/png', maxFiles: 1 })
     const files = acceptedFiles.map(file => { return(
             <Fragment key={file.name} >
-                <img id="preview-image" src={imagePreview} />
+                <img id="preview-image" src={imagePreview} className="w-full" />
             </Fragment>
         )
     })
     
     return (
-        <Fragment>
-            <div {...getRootProps()} className={`mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md ${isDragActive ? 'bg-blue-50' : 'bg-grey-100'}`}>
+        <div className={`${imagePreview ? 'px-0 py-0 sm:p-0' : 'px-4 py-3'}`}>
+            <div {...getRootProps()} className={`mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md ${isDragActive ? 'bg-blue-50' : 'bg-grey-100'} ${imagePreview ? 'hidden' : ''}`}>
                 <div className="space-y-1 text-center">
                 <UploadIcon className="stroke-0 mx-auto h-8 w-8 text-gray-300" />
                 <div className="flex text-sm text-gray-600">
@@ -59,7 +34,7 @@ const Dropzone = ({ onDrop, imagePreview }: Props) => {
                 </div>
             </div>
             <div>{files}</div>
-        </Fragment>
+        </div>
     )
 }
 

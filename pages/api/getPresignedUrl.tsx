@@ -19,10 +19,11 @@ export default (req: NextApiRequest, res: NextApiResponse) => {
     const { body } = req
     if (req.method === 'POST') {
         if (body.creatorAddress && body.contentType) {
+            const key = `${body.creatorAddress}/${Date.now()}_${generateRandomString(6)}`
             const getSignedUrl = new Promise((resolve, reject) => {
                 s3.getSignedUrl('putObject', {
                     Bucket: bucket,
-                    Key: `${body.creatorAddress}/${Date.now()}_${generateRandomString(6)}`,
+                    Key: key,
                     ContentType: body.contentType,
                     Expires: 100,
                 }, (err, url) => {

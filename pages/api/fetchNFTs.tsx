@@ -2,13 +2,11 @@ import type { NextApiRequest, NextApiResponse } from 'next'
 import prisma from '../../lib/prisma'
 import { INFT } from '../../util/types'
 
-export default (req: NextApiRequest, res: NextApiResponse) => {
+export default async (req: NextApiRequest, res: NextApiResponse) => {
     const { query: { cursor } } = req
-
-    const query = async (cursor) => {
+    try {
         const count = await prisma.nft.count()
         let tokens: INFT[]
-
         if (cursor === 'null') {
             tokens = await prisma.nft.findMany({
                 take: 8,
@@ -25,10 +23,8 @@ export default (req: NextApiRequest, res: NextApiResponse) => {
                 orderBy: { id: 'desc', },
             })
         }
-
         res.status(200).json({ nfts: tokens, count: count })
+    } catch (e) {
+        res.status(502).json({error: e})
     }
-    
-    return query(cursor)
-        .catch(e => res.status(502).json({error: e}))
 }

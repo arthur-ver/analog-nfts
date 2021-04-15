@@ -2,87 +2,63 @@ import Head from 'next/head'
 import { Header, Footer } from '../components/Layout'
 import { Fragment, useEffect, useCallback } from 'react'
 import React, { useState } from 'react'
-import prefixURL from '../util/prefix'
 import { useZora } from '../components/ZoraProvider'
 import * as nsfwjs from 'nsfwjs'
 import { Dropzone } from '../components/Dropzone'
+import { getSignedUrl, uploadFile } from '../lib/s3helpers'
+import NProgress from 'nprogress'
+import { XIcon } from '@heroicons/react/outline'
 
 const Mint = () => {
     const { address } = useZora()
     const [creatorShare, setCreatorShare] = useState<number>(5)
     const [loading, setLoading] = useState<boolean>(true)
-    const [model, setModel] = useState<nsfwjs.NSFWJS | undefined>(undefined)
     const [imagePreview, setImagePreview] = useState<any>(undefined)
-    const [file, setFile] = useState<any>(undefined)
-
-    const getSignedUrl = (): Promise<any> => {
-        return fetch(`${prefixURL}/api/fleekS3Auth`, {
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            method: 'POST',
-            body: JSON.stringify({ 
-                creatorAddress: address,
-                contentType: file.type
-            }),
-        })
-        .then(res => res.json())
-        .then(
-            result => { return Promise.resolve(result.url) },
-            error => { return Promise.reject(error) }
-        )
-    }
+    const [file, setFile] = useState<File | undefined>(undefined)
 
     const upload = async (e) => {
         e.preventDefault()
+        NProgress.start()
+        setLoading(true)
         try {
-            console.log(file)
             const predictions = await nsfwCheck()
             if (predictions[0].probability > 0.65) {
-                const signedRequest = await getSignedUrl()
-
-                const response = await fetch(signedRequest, {
-                    headers: {
-                        'Content-Type': file.type
-                    },
-                    method: 'PUT',
-                    body: file,
-                    mode: 'cors'
-                })
-
-                console.log(response.headers.forEach(console.log))
+                const signedResponse = await getSignedUrl(address, file.type)
+                const uploadResponse = await uploadFile(file, signedResponse)
+                const cid_v0 = uploadResponse.headers.get('x-fleek-ipfs-hash-v0')
+                console.log(cid_v0)
             }
         } catch (e) {
             console.error(e)
+        } finally {
+            NProgress.done()
+            setLoading(false)
         }
     }
 
     const nsfwCheck = async () => {
-        if(imagePreview) {
+        const model = await nsfwjs.load('/model/', { size: 299 })
             const img = document.getElementById('preview-image') as HTMLImageElement
             const predictions = await model.classify(img)
             return predictions
-        } else {
-            return false
-        }
     }
 
-    useEffect(() => {
-        nsfwjs.load('/model/', { size: 299 }).then(model => {
-            setModel(model)
-            setLoading(false)
-        })
-    }, [])
-
     const onDrop = useCallback(acceptedFiles => {
+        if (acceptedFiles.length == 0) return
         const file = acceptedFiles[0]
         const reader = new FileReader()
-        const url = reader.readAsDataURL(file)
+        reader.readAsDataURL(file)
         reader.onloadend = (e) => {
             setImagePreview(reader.result)
+            setLoading(false)
         }
         setFile(file)
     }, [])
+
+    const resetFile = () => {
+        setImagePreview(undefined)
+        setFile(undefined)
+    }
 
 
     return (
@@ -105,10 +81,13 @@ const Mint = () => {
 
                         <div className="mt-5 md:mt-0 md:col-span-2">
                             <div className="shadow sm:rounded-md sm:overflow-hidden">
-                                <div className="px-4 py-5 bg-white space-y-6 sm:p-6">
+                                <div className="p-0 bg-white relative">
                                     <Dropzone onDrop={onDrop} imagePreview={imagePreview} />
+                                    <button onClick={() => resetFile()} className={`${imagePreview ? '' : 'hidden'} rounded-full bg-black bg-opacity-50 hover:bg-opacity-70 absolute top-2 left-2 p-1`}>
+                                        <XIcon className="w-4 h-4 text-white" />
+                                    </button>
                                 </div>
-                                <div className="px-4 py-3 bg-gray-50 text-right sm:px-6">
+                                <div className="px-4 py-3 bg-gray-50 text-right ">
                                     <button onClick={(e) => upload(e)} type="submit" className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50" disabled={loading}>
                                     Upload image
                                     </button>
