@@ -16,3 +16,9 @@ export interface IFetch {
     count?: number
     error?: { message: string }
 }
+
+export type SignedResponse = {
+    url: string,
+    fileName: string,
+    key: string
+}

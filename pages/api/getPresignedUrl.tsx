@@ -17,26 +17,23 @@ const s3 = new S3({
 
 export default (req: NextApiRequest, res: NextApiResponse) => {
     const { body } = req
-    if (req.method === 'POST') {
-        if (body.creatorAddress && body.contentType) {
-            const key = `${body.creatorAddress}/${Date.now()}_${generateRandomString(6)}`
-            const getSignedUrl = new Promise((resolve, reject) => {
-                s3.getSignedUrl('putObject', {
-                    Bucket: bucket,
-                    Key: key,
-                    ContentType: body.contentType,
-                    Expires: 100,
-                }, (err, url) => {
-                    err ? reject(err) : resolve(url)
-                })
+    if (req.method === 'POST' && body.creatorAddress && body.contentType) {
+        const fileName = `${Date.now()}_${generateRandomString(6)}`
+        const key = `${body.creatorAddress}/${fileName}`
+        const getSignedUrl = new Promise((resolve, reject) => {
+            s3.getSignedUrl('putObject', {
+                Bucket: bucket,
+                Key: key,
+                ContentType: body.contentType,
+                Expires: 100,
+            }, (err, url) => {
+                err ? reject(err) : resolve(url)
             })
-            return getSignedUrl
-                .then(url => res.status(200).json({ url }))
-                .catch(err => res.status(502).json({ error: err }))
-        } else {
-            res.status(502).json({error: 'Bad gateway 502'})
-        }
+        })
+        return getSignedUrl
+            .then(url => res.status(200).json({ url, fileName, key }))
+            .catch(err => res.status(500).json({ error: err }))
     } else {
-        res.status(502).json({error: 'Bad gateway 502'})
+        res.status(502).json({ error: 'Bad gateway 502' })
     }
 }

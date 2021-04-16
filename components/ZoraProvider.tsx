@@ -16,7 +16,7 @@ const ZoraContext = createContext(undefined)
 
 function useZora() {
     const context = useContext(ZoraContext)
-    if(context === undefined) throw new Error('useZora() must be used within a ZoraProvider')
+    if (context === undefined) throw new Error('useZora() must be used within a ZoraProvider')
     return context
 }
 
@@ -37,7 +37,7 @@ function ZoraProvider({children}: ZoraProviderProps) {
     const chainId: number = Number(process.env.NEXT_PUBLIC_CHAIN_ID)
 
     const handleAccountsChanged = ((accounts: Array<string>) => {
-        if(accounts.length === 0) {
+        if (accounts.length === 0) {
             console.log('%c MetaMask detected, not connected', 'color: orange')
             setAddress(undefined)
             setDispAddress(undefined)
@@ -63,7 +63,7 @@ function ZoraProvider({children}: ZoraProviderProps) {
 
     const authenticate = useCallback(() => {
         return new Promise((resolve, reject) => {
-            if(typeof window.ethereum === 'undefined') {
+            if (typeof window.ethereum === 'undefined') {
                 alert('Please install MetaMask')
                 return
             }
@@ -80,7 +80,7 @@ function ZoraProvider({children}: ZoraProviderProps) {
     }, [])
 
     useEffect(() => {
-        if(typeof window.ethereum === 'undefined') {
+        if (typeof window.ethereum === 'undefined') {
             console.log('%c MetaMask is not installed', 'color: orange')
             return
         }

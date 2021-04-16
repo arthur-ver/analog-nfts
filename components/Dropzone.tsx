@@ -1,6 +1,6 @@
 import {useDropzone} from 'react-dropzone'
 import { Fragment } from 'react'
-import { UploadIcon, PhotographIcon } from '@heroicons/react/outline'
+import { UploadIcon } from '@heroicons/react/outline'
 
 type Props = {
     onDrop: (acceptedFiles: any) => void,
@@ -11,7 +11,7 @@ const Dropzone = ({ onDrop, imagePreview }: Props) => {
     const {getRootProps, getInputProps, isDragActive, acceptedFiles} = useDropzone({ onDrop, accept: 'image/jpeg, image/png', maxFiles: 1 })
     const files = acceptedFiles.map(file => { return(
             <Fragment key={file.name} >
-                <img id="preview-image" src={imagePreview} className="w-full" />
+                <img id="preview-image" src={imagePreview} className={`w-full ${imagePreview ? '' : 'hidden'}`} />
             </Fragment>
         )
     })
