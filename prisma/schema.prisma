@@ -11,43 +11,52 @@ generator client {
   provider = "prisma-client-js"
 }
 
-model nft {
-  id          Int       @default(autoincrement()) @id
-  tokenId     Int       @unique
-  photoCID    String    @db.VarChar(255) @unique
-  metadataCID String    @db.VarChar(255) @unique
-  photoCDN    String    @db.VarChar(255) @unique
-  creator     String    @db.VarChar(42)
-  title       String    @db.VarChar(60)
-  description String    @db.VarChar(255)
-  createdAt   DateTime  @default(now())
-}
+model nft { 
+  id            Int       @default(autoincrement()) @id
+  tokenId       Int       @unique @map(name: "token_id")
+  photoCID      String    @db.VarChar(255) @unique @map(name: "photo_cid")
+  metadataCID   String    @db.VarChar(255) @unique @map(name: "metadata_cid")
+  photoCDN      String    @db.VarChar(255) @unique @map(name: "photo_cdn")
+  creator       String    @db.VarChar(42)
+  title         String    @db.VarChar(60)               
+  description   String    @db.VarChar(255)
+  createdAt     DateTime  @default(now()) @map(name: "created_at")
+
+  @@map(name: "nfts")
+} 
 
 model user {
-  id          String    @default(cuid())  @id
-  address     String    @db.VarChar(42)   @unique
-  email       String    @db.VarChar(255)  @unique
-  username    String    @db.VarChar(30)   @unique
-  invites     invite[]
-  draft       draftNft[]
+  id            String    @default(cuid())  @id
+  address       String    @db.VarChar(42)   @unique
+  email         String    @db.VarChar(255)  @unique
+  username      String    @db.VarChar(30)   @unique
+  refreshToken  String?   @map(name: "refresh_token")
+  invites       invite[]
+  draft         draftNft[]
+
+  @@map(name: "users")
 }
 
 model draftNft {
-  id          Int       @default(autoincrement()) @id
-  userId      String
-  user        user      @relation(fields:  [userId], references: [id])
-  photoCID    String    @db.VarChar(255) @unique
-  metadataCID String?   @db.VarChar(255) @unique
-  photoCDN    String    @db.VarChar(255) @unique
-  creator     String?   @db.VarChar(42)
-  title       String?   @db.VarChar(60)
-  description String?   @db.VarChar(255)
-}
+  id            Int       @default(autoincrement()) @id
+  userId        String    @map(name: "user_id")
+  user          user      @relation(fields:  [userId], references: [id])
+  photoCID      String    @db.VarChar(255) @unique @map(name: "photo_cid")
+  metadataCID   String?   @db.VarChar(255) @unique @map(name: "metadata_cid")
+  photoCDN      String    @db.VarChar(255) @unique @map(name: "photo_cdn")
+  creator       String?   @db.VarChar(42)
+  title         String?   @db.VarChar(60)
+  description   String?   @db.VarChar(255)
+
+  @@map(name: "draft_nfts")
+} 
 
 model invite {
-  id          Int       @default(autoincrement()) @id
-  userId      String
-  user        user      @relation(fields:  [userId], references: [id])
-  code        String    @default(cuid())  @unique
-  valid       Boolean   @default(true)
+  id            Int       @default(autoincrement()) @id
+  userId        String    @map(name: "user_id")
+  user          user      @relation(fields:  [userId], references: [id])
+  code          String    @default(cuid()) @unique
+  valid         Boolean   @default(true)
+
+  @@map(name: "invites")
 }
