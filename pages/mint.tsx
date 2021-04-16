@@ -15,7 +15,7 @@ import { CircleSpinner } from 'react-spinners-kit'
 const Mint = () => {
     const { address } = useZora()
     const [creatorShare, setCreatorShare] = useState<number>(5)
-    const [loading, setLoading] = useState<boolean>(true)
+    const [disableBtn, setDisableBtn] = useState<boolean>(true)
     const [uploading, setUploading] = useState<boolean>(false)
     const [imagePreview, setImagePreview] = useState<any>(undefined)
     const [file, setFile] = useState<File | undefined>(undefined)
@@ -23,7 +23,7 @@ const Mint = () => {
     const upload = async (e) => {
         e.preventDefault()
         NProgress.start()
-        setLoading(true)
+        setDisableBtn(true)
         setUploading(true)
         try {
             const predictions = await nsfwCheck()
@@ -41,7 +41,7 @@ const Mint = () => {
             console.error(e)
         } finally {
             NProgress.done()
-            setLoading(false)
+            setDisableBtn(false)
             setUploading(false)
         }
     }
@@ -60,7 +60,7 @@ const Mint = () => {
         reader.readAsDataURL(file)
         reader.onloadend = (e) => {
             setImagePreview(reader.result)
-            setLoading(false)
+            setDisableBtn(false)
         }
         setFile(file)
     }, [])
@@ -100,16 +100,20 @@ const Mint = () => {
                                     <div className="p-0 bg-white relative">
                                         <div className={`${uploading ? 'opacity-60' : ''} relative`}>
                                             <Dropzone onDrop={onDrop} imagePreview={imagePreview} />
-                                            <button onClick={() => resetFile()} disabled={loading} className={`${imagePreview ? '' : 'hidden'} rounded-full bg-black bg-opacity-50 hover:bg-opacity-70 absolute top-2 left-2 p-1`}>
-                                                <XIcon className="w-4 h-4 text-white" />
-                                            </button>
+                                            {imagePreview &&
+                                                <button onClick={() => resetFile()} disabled={disableBtn} className='rounded-full bg-black bg-opacity-50 hover:bg-opacity-70 absolute top-2 left-2 p-1'>
+                                                    <XIcon className="w-4 h-4 text-white" />
+                                                </button>
+                                            }
                                         </div>
-                                        <div className={`${uploading ? '' : 'hidden'} absolute top-0 left-0 right-0 bottom-0 flex items-center justify-center`}>
-                                            <CircleSpinner color='#4e46e5' />
-                                        </div>
+                                        {uploading &&
+                                            <div className='absolute top-0 left-0 right-0 bottom-0 flex items-center justify-center'>
+                                                <CircleSpinner color='#4e46e5' />
+                                            </div>
+                                        }
                                     </div>
                                     <div className="px-4 py-3 bg-gray-50 text-right ">
-                                        <button onClick={(e) => upload(e)} type="submit" className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50" disabled={loading}>
+                                        <button onClick={(e) => upload(e)} disabled={disableBtn} type="submit" className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50">
                                         Upload image
                                         </button>
                                     </div>
@@ -146,7 +150,7 @@ const Mint = () => {
                                         </div>
                                     </div>
                                     <div className="px-4 py-3 bg-gray-50 text-right sm:px-6">
-                                        <button type="submit" className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50" disabled={loading}>
+                                        <button type="submit" className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50">
                                         Upload image
                                         </button>
                                     </div>

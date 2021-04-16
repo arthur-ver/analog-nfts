@@ -29,6 +29,19 @@ model user {
   email       String    @db.VarChar(255)  @unique
   username    String    @db.VarChar(30)   @unique
   invites     invite[]
+  draft       draftNft[]
+}
+
+model draftNft {
+  id          Int       @default(autoincrement()) @id
+  userId      String
+  user        user      @relation(fields:  [userId], references: [id])
+  photoCID    String    @db.VarChar(255) @unique
+  metadataCID String?   @db.VarChar(255) @unique
+  photoCDN    String    @db.VarChar(255) @unique
+  creator     String?   @db.VarChar(42)
+  title       String?   @db.VarChar(60)
+  description String?   @db.VarChar(255)
 }
 
 model invite {
