@@ -79,14 +79,13 @@ export const getStaticProps = async ({ params }) => {
     if (!/^\d+$/.test(params.id)) {
         return { props: { nft, creatorAvatar } }
     } else {
-        const fetchedObj = await prisma.nft.findMany({
+        const fetchedObj = await prisma.nft.findUnique({
             where: { tokenId: Number(params.id) },
         })
-
-        if (fetchedObj.length === 0) {
+        if (!fetchedObj) {
             return { props: { nft, creatorAvatar } }
         } else {
-            const stringifiedData = safeJsonStringify(fetchedObj[0])
+            const stringifiedData = safeJsonStringify(fetchedObj)
 
             nft = JSON.parse(stringifiedData)
             creatorAvatar = avatars.create(nft.creator)

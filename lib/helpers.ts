@@ -70,4 +70,29 @@ const uploadToImagekit = async (url: string, fileName: string, fileExtension: st
     }
 }
 
-export { getFileExtension, getSignedUrl, uploadFile, uploadToImagekit }
+const verifySignature = async (signature: string, address: string) => {
+    try {
+        const response = await fetch(`${prefixURL}/api/auth`, {
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            method: 'POST',
+            body: JSON.stringify({
+                authRequest: { 
+                    signature,
+                    address
+                }
+            }),
+        })
+        if (response.status == 200) {
+            const jsonResponse = await response.json()
+            return jsonResponse
+        } else {
+            throw 'verifySignature: Bad Request'
+        }
+    } catch (e) {
+        throw e
+    }
+}
+
+export { getFileExtension, getSignedUrl, uploadFile, uploadToImagekit, verifySignature }

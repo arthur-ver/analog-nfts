@@ -4,7 +4,7 @@ import { useZora } from './ZoraProvider'
 
 const Header = () => {
     const [loading, setLoading] = useState(false)
-    const { address, disp_address, identicon, authenticate } = useZora()
+    const { address, disp_address, identicon, authenticate, login } = useZora()
 
     const handleConnectClick = useCallback(() => {
         setLoading(true)
@@ -15,6 +15,17 @@ const Header = () => {
             setLoading(false)
         })
     }, [authenticate])
+
+    const handleLoginClick = useCallback(() => {
+        setLoading(true)
+        login().then((authToken) => {
+            setLoading(false)
+            console.log(authToken)
+        })
+        .catch(() => {
+            setLoading(false)
+        })
+    }, [login])
 
     return (
         <header className="sticky top-0 z-10 bg-white flex justify-between items-centered border-b border-gray-300 pt-4 pl-6 pr-6 pb-4">
@@ -40,6 +51,9 @@ const Header = () => {
                             <div className="w-10 h-10 bg-cover bg-no-repeat rounded-sm rounded-full" style={{backgroundImage: `url(${identicon})`}}></div>
                             <span>{disp_address}</span>
                         </div>
+                        <button onClick={handleLoginClick} disabled={loading} className="bg-blue-500 hover:bg-blue-700 text-white py-2 px-4 rounded">
+                            {loading ? 'Verifying...' : 'Login'}
+                        </button>
                     </div>
                 ) : (
                     <button onClick={handleConnectClick} disabled={loading} className="bg-blue-500 hover:bg-blue-700 text-white py-2 px-4 rounded">

@@ -3,6 +3,7 @@ import { ethers } from 'ethers'
 import { Zora } from '@zoralabs/zdk'
 import Avatars from '@dicebear/avatars'
 import sprites from '@dicebear/avatars-identicon-sprites'
+import { verifySignature } from '../lib/helpers'
 
 declare global {
     interface Window {
@@ -16,16 +17,17 @@ const ZoraContext = createContext(undefined)
 
 function useZora() {
     const context = useContext(ZoraContext)
-    if (context === undefined) throw new Error('useZora() must be used within a ZoraProvider')
+    if (context === undefined)
+        throw new Error('useZora() must be used within a ZoraProvider')
     return context
 }
 
 function ZoraProvider({children}: ZoraProviderProps) {
     const [zora, setZora] = useState<any>(undefined)
-    const [address, setAddress] = useState<any>(undefined)
+    const [address, setAddress] = useState<string | undefined>(undefined)
     const [disp_address, setDispAddress] = useState<any>(undefined)
     const [identicon, setIdenticon] = useState<any>(undefined)
-    const [signer, setSigner] = useState<any>(undefined)
+    const [signer, setSigner] = useState<ethers.providers.JsonRpcSigner | undefined>(undefined)
 
     let options = {
         dataUri: true,
@@ -36,9 +38,15 @@ function ZoraProvider({children}: ZoraProviderProps) {
     
     const chainId: number = Number(process.env.NEXT_PUBLIC_CHAIN_ID)
 
+    const login = useCallback(async () => {
+        const signature = await signer.signMessage('Login message')
+        const authToken = await verifySignature(signature, address)
+        return authToken
+
+    }, [signer, address])
+
     const handleAccountsChanged = ((accounts: Array<string>) => {
         if (accounts.length === 0) {
-            console.log('%c MetaMask detected, not connected', 'color: orange')
             setAddress(undefined)
             setDispAddress(undefined)
             setIdenticon(undefined)
@@ -91,7 +99,7 @@ function ZoraProvider({children}: ZoraProviderProps) {
         window.ethereum.on('chainChanged', (_chainId: string) => handleChainChanged(parseInt(_chainId)))
     }, [])
 
-    return <ZoraContext.Provider value={{ zora, address, disp_address, identicon, authenticate }} children={children} />
+    return <ZoraContext.Provider value={{ zora, address, disp_address, identicon, authenticate, login }} children={children} />
 }
 
 export { useZora, ZoraProvider }

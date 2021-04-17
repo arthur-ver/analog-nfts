@@ -15,6 +15,7 @@
     "@tensorflow/tfjs": "^3.3.0",
     "@zoralabs/zdk": "^1.0.8",
     "aws-sdk": "^2.884.0",
+    "crypto-js": "^4.0.0",
     "ethers": "^5.1.0",
     "imagekit": "^3.1.2",
     "imagekitio-react": "^1.0.9",
