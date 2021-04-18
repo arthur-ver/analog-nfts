@@ -1,7 +1,7 @@
+import { verifyAuthRequest } from '../lib/helpers'
 import Head from 'next/head'
 import { Header, Footer } from '../components/Layout'
-import { useCallback } from 'react'
-import React, { useState } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { useZora } from '../components/ZoraProvider'
 import * as nsfwjs from 'nsfwjs'
 import { Dropzone } from '../components/Dropzone'
@@ -12,13 +12,19 @@ import DefaultErrorPage from 'next/error'
 import { SignedResponse } from '../util/types'
 import { CircleSpinner } from 'react-spinners-kit'
 
-const Mint = () => {
-    const { address } = useZora()
+const Mint = ({ status, userId, authToken, refreshTokenHash }) => {
+    const { address, handleAuthTokensChanged } = useZora()
     const [creatorShare, setCreatorShare] = useState<number>(5)
     const [disableBtn, setDisableBtn] = useState<boolean>(true)
     const [uploading, setUploading] = useState<boolean>(false)
     const [imagePreview, setImagePreview] = useState<any>(undefined)
     const [file, setFile] = useState<File | undefined>(undefined)
+
+    useEffect(() => {
+        if (status !== 400) {
+            handleAuthTokensChanged(userId, authToken, refreshTokenHash)
+        }
+    }, [handleAuthTokensChanged, status, userId, authToken, refreshTokenHash])
 
     const upload = async (e) => {
         e.preventDefault()
@@ -70,12 +76,12 @@ const Mint = () => {
         setFile(undefined)
     }
 
-    if (!address)
+    if (status === 400)
         return <>
             <Head>
                 <meta name="robots" content="noindex" />
             </Head>
-            <DefaultErrorPage statusCode={401} title='Unauthorized access' />
+            <DefaultErrorPage statusCode={400} title='Unauthorized' />
         </>
     else
         return <>
@@ -160,6 +166,24 @@ const Mint = () => {
                     </div>
                 </main>
             </>
+}
+
+export const getServerSideProps = async({ query: { userId, authToken, refreshTokenHash } }) => {
+    if (userId !== undefined && authToken !== undefined && refreshTokenHash !== undefined) {
+        const authResponse = await verifyAuthRequest(userId, authToken, refreshTokenHash)
+        if (authResponse.status === 400) {
+            return { props: { status: 400 } }
+        } else {
+            return { props: { 
+                status: 200,
+                userId: authResponse.response.userId,
+                authToken: authResponse.response.authToken,
+                refreshTokenHash: authResponse.response.refreshTokenHash
+            }}
+        }
+    } else {
+        return { props: { status: 400 } }
+    }
 }
 
 export default Mint

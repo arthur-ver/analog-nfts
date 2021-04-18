@@ -1,4 +1,5 @@
 import prefixURL from '../util/prefix'
+import { authResponse } from '../util/types'
 
 const getFileExtension = (filename: string) => {
     return filename.slice((filename.lastIndexOf('.') - 1 >>> 0) + 2)
@@ -70,7 +71,7 @@ const uploadToImagekit = async (url: string, fileName: string, fileExtension: st
     }
 }
 
-const verifySignature = async (signature: string, address: string) => {
+const authRequest = async (signature: string, address: string): Promise<authResponse> => {
     try {
         const response = await fetch(`${prefixURL}/api/auth`, {
             headers: {
@@ -95,4 +96,30 @@ const verifySignature = async (signature: string, address: string) => {
     }
 }
 
-export { getFileExtension, getSignedUrl, uploadFile, uploadToImagekit, verifySignature }
+const verifyAuthRequest = async (userId: string, authToken: string, refreshTokenHash: string) => {
+    try {
+        const response = await fetch(`${prefixURL}/api/auth`, {
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            method: 'POST',
+            body: JSON.stringify({
+                verifyRequest: { 
+                    userId,
+                    authToken,
+                    refreshTokenHash
+                }
+            })
+        })
+        if (response.status === 400 || response.status === 403) {
+            return { status: 400, response: null }
+        } else {
+            const jsonResponse = await response.json()
+            return {status: 200, response: jsonResponse}
+        }
+    } catch (e) {
+        throw e
+    }
+}
+
+export { getFileExtension, getSignedUrl, uploadFile, uploadToImagekit, authRequest, verifyAuthRequest }

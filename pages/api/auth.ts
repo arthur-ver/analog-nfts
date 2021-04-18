@@ -22,7 +22,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
                 const { signature, address } = body.authRequest
                 const addressRecovered = utils.verifyMessage('Login message', signature)
                 if (address !== addressRecovered.toLowerCase()) {
-                    res.status(400).end()
+                    res.status(403).end()
                 } else {
                     const user = await prisma.user.findUnique({
                         where: { address },
@@ -50,14 +50,18 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
                 const { userId, authToken, refreshTokenHash } = body.verifyRequest
                 const isAuthTokenValid = await verifyToken(authToken)
                 if (isAuthTokenValid) {
-                    res.status(200).end()
+                    res.status(200).json({
+                        userId,
+                        authToken,
+                        refreshTokenHash
+                    })
                 } else {
                     const refreshToken = await prisma.user.findUnique({
                         where: { id: userId, },
                         select: { refreshToken: true, },
                     })
                     const isRefreshTokenValid = await verifyToken(refreshToken.refreshToken)
-                    const dbRefreshTokenHash = sha256(refreshToken).toString(Hex)
+                    const dbRefreshTokenHash = sha256(refreshToken.refreshToken).toString(Hex)
                     if (dbRefreshTokenHash === refreshTokenHash && isRefreshTokenValid) {
                         const authToken = sign({ userId }, process.env.JWT_SECRET, { expiresIn: 15*60 })
                         res.status(401).json({
@@ -80,7 +84,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
                             refreshTokenHash
                         })
                     } else {
-                        res.status(401).json({ unauthorized: true })
+                        res.status(400).end()
                     }
                 }
             } else {

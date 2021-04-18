@@ -1,10 +1,11 @@
 import Link from 'next/link'
 import { useCallback, useState } from 'react'
 import { useZora } from './ZoraProvider'
+import RestrictedLink from '../components/RestrictedLink'
 
 const Header = () => {
     const [loading, setLoading] = useState(false)
-    const { address, disp_address, identicon, authenticate, login } = useZora()
+    const { address, disp_address, identicon, authenticate, login, userId } = useZora()
 
     const handleConnectClick = useCallback(() => {
         setLoading(true)
@@ -18,9 +19,8 @@ const Header = () => {
 
     const handleLoginClick = useCallback(() => {
         setLoading(true)
-        login().then((authToken) => {
+        login().then(() => {
             setLoading(false)
-            console.log(authToken)
         })
         .catch(() => {
             setLoading(false)
@@ -44,16 +44,21 @@ const Header = () => {
                 </Link>
                 {address ? (
                     <div className="flex items-center space-x-6">
-                        <Link href="/mint">
-                            <button className="bg-blue-500 hover:bg-blue-700 text-white py-2 px-4 rounded">Mint</button>
-                        </Link>
-                        <div className="flex items-center space-x-3">
-                            <div className="w-10 h-10 bg-cover bg-no-repeat rounded-sm rounded-full" style={{backgroundImage: `url(${identicon})`}}></div>
-                            <span>{disp_address}</span>
-                        </div>
-                        <button onClick={handleLoginClick} disabled={loading} className="bg-blue-500 hover:bg-blue-700 text-white py-2 px-4 rounded">
-                            {loading ? 'Verifying...' : 'Login'}
-                        </button>
+                        {userId ? (
+                            <>
+                                <RestrictedLink to="/mint" children={
+                                    <button className="bg-blue-500 hover:bg-blue-700 text-white py-2 px-4 rounded">Mint</button>
+                                } />
+                                <div className="flex items-center space-x-3">
+                                    <div className="w-10 h-10 bg-cover bg-no-repeat rounded-sm rounded-full" style={{backgroundImage: `url(${identicon})`}}></div>
+                                    <span>{disp_address}</span>
+                                </div>
+                            </>
+                        ) : (
+                            <button onClick={handleLoginClick} disabled={loading} className="bg-blue-500 hover:bg-blue-700 text-white py-2 px-4 rounded">
+                                {loading ? 'Verifying...' : 'Login'}
+                            </button>
+                        )}
                     </div>
                 ) : (
                     <button onClick={handleConnectClick} disabled={loading} className="bg-blue-500 hover:bg-blue-700 text-white py-2 px-4 rounded">

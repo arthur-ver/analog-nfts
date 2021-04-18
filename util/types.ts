@@ -22,3 +22,9 @@ export type SignedResponse = {
     fileName: string,
     key: string
 }
+
+export interface authResponse {
+    userId: string,
+    authToken: string,
+    refreshTokenHash: string
+}

@@ -3,12 +3,22 @@ import { ethers } from 'ethers'
 import { Zora } from '@zoralabs/zdk'
 import Avatars from '@dicebear/avatars'
 import sprites from '@dicebear/avatars-identicon-sprites'
-import { verifySignature } from '../lib/helpers'
+import { authRequest } from '../lib/helpers'
 
 declare global {
     interface Window {
         ethereum: any
     }
+}
+
+const useStateWithLocalStorage = (localStorageKey: string) => {
+    const [value, setValue] = useState(process.browser ? (localStorage.getItem(localStorageKey) || undefined) : undefined)
+
+    useEffect(() => {
+        localStorage.setItem(localStorageKey, value)
+    }, [value])
+
+    return [value, setValue] as const
 }
 
 type ZoraProviderProps = {children: ReactNode}
@@ -28,6 +38,9 @@ function ZoraProvider({children}: ZoraProviderProps) {
     const [disp_address, setDispAddress] = useState<any>(undefined)
     const [identicon, setIdenticon] = useState<any>(undefined)
     const [signer, setSigner] = useState<ethers.providers.JsonRpcSigner | undefined>(undefined)
+    const [userId, setUserId] = useStateWithLocalStorage('userId')
+    const [authToken, setAuthToken] = useStateWithLocalStorage('authToken')
+    const [refreshTokenHash, setRefreshTokenHash] = useStateWithLocalStorage('refreshTokenHash')
 
     let options = {
         dataUri: true,
@@ -37,13 +50,6 @@ function ZoraProvider({children}: ZoraProviderProps) {
     let avatars = new Avatars(sprites, options)
     
     const chainId: number = Number(process.env.NEXT_PUBLIC_CHAIN_ID)
-
-    const login = useCallback(async () => {
-        const signature = await signer.signMessage('Login message')
-        const authToken = await verifySignature(signature, address)
-        return authToken
-
-    }, [signer, address])
 
     const handleAccountsChanged = ((accounts: Array<string>) => {
         if (accounts.length === 0) {
@@ -87,6 +93,29 @@ function ZoraProvider({children}: ZoraProviderProps) {
         })
     }, [])
 
+    const login = useCallback(async () => {
+        const signature = await signer.signMessage('Login message')
+        const { userId, authToken, refreshTokenHash } = await authRequest(signature, address)
+        setUserId(userId)
+        setAuthToken(authToken)
+        setRefreshTokenHash(refreshTokenHash)
+    }, [address, signer])
+
+    const handleAuthTokensChanged = useCallback((userId_: string, authToken_: string, refreshTokenHash_: string) => {
+        if (userId_ !== userId) {
+            // logout
+            console.log('log out')
+        }
+        if (authToken_ !== authToken) {
+            setAuthToken(authToken_)
+            console.log('authToken updated')
+        }
+        if (refreshTokenHash_ !== refreshTokenHash) {
+            setRefreshTokenHash(refreshTokenHash_)
+            console.log('refreshTokenHash updated')
+        }
+    }, [userId, authToken, refreshTokenHash])
+
     useEffect(() => {
         if (typeof window.ethereum === 'undefined') {
             console.log('%c MetaMask is not installed', 'color: orange')
@@ -99,7 +128,7 @@ function ZoraProvider({children}: ZoraProviderProps) {
         window.ethereum.on('chainChanged', (_chainId: string) => handleChainChanged(parseInt(_chainId)))
     }, [])
 
-    return <ZoraContext.Provider value={{ zora, address, disp_address, identicon, authenticate, login }} children={children} />
+    return <ZoraContext.Provider value={{ zora, address, disp_address, identicon, authenticate, login, userId, authToken, refreshTokenHash, handleAuthTokensChanged }} children={children} />
 }
 
 export { useZora, ZoraProvider }
