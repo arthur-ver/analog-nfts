@@ -122,4 +122,25 @@ const verifyAuthRequest = async (userId: string, authToken: string, refreshToken
     }
 }
 
-export { getFileExtension, getSignedUrl, uploadFile, uploadToImagekit, authRequest, verifyAuthRequest }
+const serverSideAuthCheck = async (res: any, userId: string, authToken: string, refreshTokenHash: string) => {
+    if (userId !== 'undefined' && authToken !== 'undefined' && refreshTokenHash !== 'undefined') {
+        const authResponse = await verifyAuthRequest(userId, authToken, refreshTokenHash)
+        if (authResponse.status === 400) {
+            res.writeHead(301, { location: '/' } )
+            res.end()
+            return { props: {} }
+        } else {
+            return { props: { 
+                userId: authResponse.response.userId,
+                authToken: authResponse.response.authToken,
+                refreshTokenHash: authResponse.response.refreshTokenHash
+            }}
+        }
+    } else {
+        res.writeHead(301, { location: '/' } )
+        res.end()
+        return { props: {} }
+    }
+}
+
+export { getFileExtension, getSignedUrl, uploadFile, uploadToImagekit, authRequest, verifyAuthRequest, serverSideAuthCheck }

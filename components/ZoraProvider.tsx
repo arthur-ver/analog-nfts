@@ -101,11 +101,13 @@ function ZoraProvider({children}: ZoraProviderProps) {
         setRefreshTokenHash(refreshTokenHash)
     }, [address, signer])
 
+    const logout = useCallback(async () => {
+        setUserId(undefined)
+        setAuthToken(undefined)
+        setRefreshTokenHash(undefined)
+    }, [])
+
     const handleAuthTokensChanged = useCallback((userId_: string, authToken_: string, refreshTokenHash_: string) => {
-        if (userId_ !== userId) {
-            // logout
-            console.log('log out')
-        }
         if (authToken_ !== authToken) {
             setAuthToken(authToken_)
             console.log('authToken updated')

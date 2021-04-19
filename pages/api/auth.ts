@@ -48,21 +48,23 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
                 }            
             } else if (body.verifyRequest && body.verifyRequest.userId && body.verifyRequest.authToken && body.verifyRequest.refreshTokenHash) {
                 const { userId, authToken, refreshTokenHash } = body.verifyRequest
-                const isAuthTokenValid = await verifyToken(authToken)
-                if (isAuthTokenValid) {
-                    res.status(200).json({
-                        userId,
-                        authToken,
-                        refreshTokenHash
-                    })
+                const refreshToken = await prisma.user.findUnique({
+                    where: { id: userId, },
+                    select: { refreshToken: true, },
+                })
+                if (!refreshToken) {
+                    res.status(400).end()
                 } else {
-                    const refreshToken = await prisma.user.findUnique({
-                        where: { id: userId, },
-                        select: { refreshToken: true, },
-                    })
+                    const isAuthTokenValid = await verifyToken(authToken)
                     const isRefreshTokenValid = await verifyToken(refreshToken.refreshToken)
                     const dbRefreshTokenHash = sha256(refreshToken.refreshToken).toString(Hex)
-                    if (dbRefreshTokenHash === refreshTokenHash && isRefreshTokenValid) {
+                    if (dbRefreshTokenHash === refreshTokenHash && isAuthTokenValid) {
+                        res.status(200).json({
+                            userId,
+                            authToken,
+                            refreshTokenHash
+                        })
+                    } else if (dbRefreshTokenHash === refreshTokenHash && isRefreshTokenValid) {
                         const authToken = sign({ userId }, process.env.JWT_SECRET, { expiresIn: 15*60 })
                         res.status(401).json({
                             userId,
