@@ -1,11 +1,12 @@
 import Link from 'next/link'
 import { useCallback, useState } from 'react'
 import { useZora } from './ZoraProvider'
-import RestrictedLink from '../components/RestrictedLink'
+import { signIn, signOut, useSession } from 'next-auth/client'
 
 const Header = () => {
-    const [loading, setLoading] = useState(false)
-    const { address, disp_address, identicon, authenticate, login, userId } = useZora()
+    const [ session, loading ] = useSession()
+    const [isLoading, setLoading] = useState(false)
+    const { address, disp_address, identicon, authenticate, signer } = useZora()
 
     const handleConnectClick = useCallback(() => {
         setLoading(true)
@@ -17,15 +18,13 @@ const Header = () => {
         })
     }, [authenticate])
 
-    const handleLoginClick = useCallback(() => {
-        setLoading(true)
-        login().then(() => {
-            setLoading(false)
+    const handleSignInClick = useCallback(async () => {
+        const signature = await signer.signMessage('Login message')
+        signIn('credentials', {
+            signature,
+            address
         })
-        .catch(() => {
-            setLoading(false)
-        })
-    }, [login])
+    }, [signer, address])
 
     return (
         <header className="sticky top-0 z-10 bg-white flex justify-between items-centered border-b border-gray-300 pt-4 pl-6 pr-6 pb-4">
@@ -44,25 +43,28 @@ const Header = () => {
                 </Link>
                 {address ? (
                     <div className="flex items-center space-x-6">
-                        {userId ? (
+                        {session ? (
                             <>
-                                <RestrictedLink to="/mint" children={
+                                <Link href="/mint">
                                     <button className="bg-blue-500 hover:bg-blue-700 text-white py-2 px-4 rounded">Mint</button>
-                                } />
+                                </Link>
                                 <div className="flex items-center space-x-3">
                                     <div className="w-10 h-10 bg-cover bg-no-repeat rounded-sm rounded-full" style={{backgroundImage: `url(${identicon})`}}></div>
                                     <span>{disp_address}</span>
                                 </div>
+                                <button onClick={() => signOut()} disabled={isLoading} className="bg-blue-500 hover:bg-blue-700 text-white py-2 px-4 rounded">
+                                    Logout
+                                </button>
                             </>
                         ) : (
-                            <button onClick={handleLoginClick} disabled={loading} className="bg-blue-500 hover:bg-blue-700 text-white py-2 px-4 rounded">
-                                {loading ? 'Verifying...' : 'Login'}
+                            <button onClick={() => handleSignInClick()} disabled={isLoading} className="bg-blue-500 hover:bg-blue-700 text-white py-2 px-4 rounded">
+                                {isLoading ? 'Verifying...' : 'Login'}
                             </button>
                         )}
                     </div>
                 ) : (
-                    <button onClick={handleConnectClick} disabled={loading} className="bg-blue-500 hover:bg-blue-700 text-white py-2 px-4 rounded">
-                        {loading ? 'Connecting...' : 'Connect to MetaMask'}
+                    <button onClick={handleConnectClick} disabled={isLoading} className="bg-blue-500 hover:bg-blue-700 text-white py-2 px-4 rounded">
+                        {isLoading ? 'Connecting...' : 'Connect to MetaMask'}
                     </button>
                 )}
             </div>
