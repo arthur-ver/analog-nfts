@@ -123,7 +123,7 @@ const verifyAuthRequest = async (userId: string, authToken: string, refreshToken
 }
 
 const serverSideAuthCheck = async (res: any, userId: string, authToken: string, refreshTokenHash: string) => {
-    if (userId !== 'undefined' && authToken !== 'undefined' && refreshTokenHash !== 'undefined') {
+    if (userId && authToken && refreshTokenHash) {
         const authResponse = await verifyAuthRequest(userId, authToken, refreshTokenHash)
         if (authResponse.status === 400) {
             res.writeHead(301, { location: '/' } )
