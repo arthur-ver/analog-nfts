@@ -9,8 +9,12 @@ import NProgress from 'nprogress'
 import { XIcon } from '@heroicons/react/outline'
 import { SignedResponse } from '../util/types'
 import { CircleSpinner } from 'react-spinners-kit'
+import { useSession, getSession } from 'next-auth/client'
+import Error from 'next/error'
+import Link from 'next/link'
 
 const Mint = () => {
+    const [ session, loading ] = useSession()
     const { address } = useZora()
     const [creatorShare, setCreatorShare] = useState<number>(5)
     const [disableBtn, setDisableBtn] = useState<boolean>(true)
@@ -51,6 +55,11 @@ const Mint = () => {
             return predictions
     }
 
+    const resetFile = () => {
+        setImagePreview(undefined)
+        setFile(undefined)
+    }
+
     const onDrop = useCallback(acceptedFiles => {
         if (acceptedFiles.length == 0) return
         const file = acceptedFiles[0]
@@ -63,10 +72,8 @@ const Mint = () => {
         setFile(file)
     }, [])
 
-    const resetFile = () => {
-        setImagePreview(undefined)
-        setFile(undefined)
-    }
+    if (loading) return null
+    if (!loading && !session) return <Error statusCode={400} title="Unauthorized" />
 
     return <>
         <Head>
