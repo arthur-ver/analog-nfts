@@ -21,7 +21,7 @@ const getSignedUrl = async (address: string, contentType: string) => {
             const jsonResponse = await response.json()
             return jsonResponse
         } else {
-            throw 'getSignedUrl: Bad Request'
+            throw { getSignedUrl: true }
         }
     } catch (e) {
         throw e
@@ -40,7 +40,7 @@ const uploadFile = async (file: File, signedRequest: any) => {
         if (response.status == 200) {
             return response
         } else {
-            throw 'uploadFile: Bad Request'
+            throw { uploadFile: true }
         }
     } catch (e) {
         throw e
@@ -64,7 +64,7 @@ const uploadToImagekit = async (url: string, fileName: string, fileExtension: st
             const jsonResponse = await response.json()
             return jsonResponse
         } else {
-            throw 'uploadToImagekit: Bad Request'
+            throw { uploadToImagekit: true }
         }
     } catch (e) {
         throw e
@@ -86,7 +86,7 @@ const createDraft = async (photoCID: string, photoCDN: string) => {
         if (response.status == 200) {
             return true
         } else {
-            throw 'uploadToImagekit: Bad Request'
+            throw { createDraft: true }
         }
     } catch (e) {
         throw  e
