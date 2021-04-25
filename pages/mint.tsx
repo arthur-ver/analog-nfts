@@ -10,7 +10,7 @@ import { XIcon } from '@heroicons/react/outline'
 import { SignedResponse } from '../util/types'
 import { CircleSpinner } from 'react-spinners-kit'
 
-const Mint = ({ userId, authToken, refreshTokenHash }) => {
+const Mint = () => {
     const { address } = useZora()
     const [creatorShare, setCreatorShare] = useState<number>(5)
     const [disableBtn, setDisableBtn] = useState<boolean>(true)

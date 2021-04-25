@@ -1,9 +1,15 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import S3 from 'aws-sdk/clients/s3'
+import jwt from 'next-auth/jwt'
 
 const apiKey = process.env.NEXT_PUBLIC_FLEEK_STORAGE
 const apiSecret = process.env.FLEEK_STORAGE_PRIVATE
 const bucket = process.env.NEXT_PUBLIC_FLEEK_BUCKET
+
+const encryption = true
+const secret = process.env.JWT_SECRET
+const signingKey = process.env.JWT_SIGNING_KEY
+const encryptionKey = process.env.JWT_ENCRYPTION_KEY
 
 const generateRandomString = (length: number) => Math.random().toString(20).substr(2, length)
 
@@ -15,16 +21,18 @@ const s3 = new S3({
     s3ForcePathStyle: true
 })
 
-export default (req: NextApiRequest, res: NextApiResponse) => {
+export default async (req: NextApiRequest, res: NextApiResponse) => {
     const { body } = req
-    if (req.method === 'POST' && body.creatorAddress && body.contentType) {
+    const { creatorAddress, contentType } = body
+    const token = await jwt.getToken({ req, secret, signingKey, encryptionKey, encryption })
+    if (token && req.method === 'POST' && creatorAddress && contentType) {
         const fileName = `${Date.now()}_${generateRandomString(6)}`
-        const key = `${body.creatorAddress}/${fileName}`
+        const key = `${creatorAddress}/${fileName}`
         const getSignedUrl = new Promise((resolve, reject) => {
             s3.getSignedUrl('putObject', {
                 Bucket: bucket,
                 Key: key,
-                ContentType: body.contentType,
+                ContentType: contentType,
                 Expires: 100,
             }, (err, url) => {
                 err ? reject(err) : resolve(url)

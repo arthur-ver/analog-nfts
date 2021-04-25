@@ -30,7 +30,6 @@ model user {
   address       String    @db.VarChar(42)   @unique
   email         String    @db.VarChar(255)  @unique
   username      String    @db.VarChar(30)   @unique
-  refreshToken  String?   @map(name: "refresh_token")
   invites       invite[]
   draft         draftNft[]
 
