@@ -71,4 +71,26 @@ const uploadToImagekit = async (url: string, fileName: string, fileExtension: st
     }
 }
 
-export { getFileExtension, getSignedUrl, uploadFile, uploadToImagekit }
+const createDraft = async (photoCID: string, photoCDN: string) => {
+    try {
+        const response = await fetch(`${prefixURL}/api/saveDraft`, {
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            method: 'POST',
+            body: JSON.stringify({ 
+                photoCID,
+                photoCDN
+            }),
+        })
+        if (response.status == 200) {
+            return true
+        } else {
+            throw 'uploadToImagekit: Bad Request'
+        }
+    } catch (e) {
+        throw  e
+    }
+}
+
+export { getFileExtension, getSignedUrl, uploadFile, uploadToImagekit, createDraft }

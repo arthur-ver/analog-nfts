@@ -18,8 +18,9 @@ export default NextAuth({
                     const user = await prisma.user.findUnique({
                         where: { address }
                     })
+                    const id = user.id
                     if (user) {
-                        return { address }
+                        return { id, address}
                     } else {
                         return null
                     }
@@ -29,6 +30,23 @@ export default NextAuth({
             }
         }),
     ],
+    callbacks: {
+        async jwt(token, user, account, profile, isNewUser) {
+            if (user?.id) {
+                token.id = user.id;
+            }
+            if (user?.address) {
+                token.address = user.address;
+            }
+            return token
+        },
+
+        async session(session, token) {
+            session.id = token.id;
+            session.address = token.address;
+            return session
+        }
+    },
     session: {
         jwt: true,
         maxAge: 30 * 24 * 60 * 60,

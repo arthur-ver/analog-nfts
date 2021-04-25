@@ -1,15 +1,11 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import S3 from 'aws-sdk/clients/s3'
 import jwt from 'next-auth/jwt'
+import { encryption, secret, signingKey, encryptionKey } from '../../lib/jwtSecrets'
 
 const apiKey = process.env.NEXT_PUBLIC_FLEEK_STORAGE
 const apiSecret = process.env.FLEEK_STORAGE_PRIVATE
 const bucket = process.env.NEXT_PUBLIC_FLEEK_BUCKET
-
-const encryption = true
-const secret = process.env.JWT_SECRET
-const signingKey = process.env.JWT_SIGNING_KEY
-const encryptionKey = process.env.JWT_ENCRYPTION_KEY
 
 const generateRandomString = (length: number) => Math.random().toString(20).substr(2, length)
 

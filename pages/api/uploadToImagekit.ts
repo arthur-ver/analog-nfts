@@ -1,11 +1,8 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import jwt from 'next-auth/jwt'
-const ImageKit = require('imagekit')
+import { encryption, secret, signingKey, encryptionKey } from '../../lib/jwtSecrets'
 
-const encryption = true
-const secret = process.env.JWT_SECRET
-const signingKey = process.env.JWT_SIGNING_KEY
-const encryptionKey = process.env.JWT_ENCRYPTION_KEY
+const ImageKit = require('imagekit')
 
 var imagekit = new ImageKit({
     publicKey : process.env.NEXT_PUBLIC_IMAGEKIT_PUBLIC,

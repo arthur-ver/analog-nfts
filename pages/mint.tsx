@@ -4,14 +4,13 @@ import React, { useState, useEffect, useCallback } from 'react'
 import { useZora } from '../components/ZoraProvider'
 import * as nsfwjs from 'nsfwjs'
 import { Dropzone } from '../components/Dropzone'
-import { getFileExtension, getSignedUrl, uploadFile, uploadToImagekit } from '../lib/helpers'
+import { getFileExtension, getSignedUrl, uploadFile, uploadToImagekit, createDraft } from '../lib/helpers'
 import NProgress from 'nprogress'
 import { XIcon } from '@heroicons/react/outline'
 import { SignedResponse } from '../util/types'
 import { CircleSpinner } from 'react-spinners-kit'
 import { useSession, getSession } from 'next-auth/client'
 import Error from 'next/error'
-import Link from 'next/link'
 
 const Mint = () => {
     const [ session, loading ] = useSession()
@@ -37,7 +36,9 @@ const Mint = () => {
                 const s3FileName = signedResponse.fileName
                 const fileExtension = getFileExtension(file.name)
                 const imagekitResponse = await uploadToImagekit(s3FileUrl, s3FileName, fileExtension)
-                console.log(imagekitResponse, cid_v0)
+                const imagekitUploadedName = imagekitResponse.name
+                const newDraftResponse = await createDraft(imagekitUploadedName, cid_v0)
+                console.log(newDraftResponse)
             }
         } catch (e) {
             console.error(e)

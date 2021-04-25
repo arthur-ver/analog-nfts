@@ -43,7 +43,6 @@ model draftNft {
   photoCID      String    @db.VarChar(255) @unique @map(name: "photo_cid")
   metadataCID   String?   @db.VarChar(255) @unique @map(name: "metadata_cid")
   photoCDN      String    @db.VarChar(255) @unique @map(name: "photo_cdn")
-  creator       String?   @db.VarChar(42)
   title         String?   @db.VarChar(60)
   description   String?   @db.VarChar(255)
 
