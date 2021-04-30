@@ -1,0 +1,23 @@
+@font-face {
+    font-family: 'SuisseWorks';
+    font-style: normal;
+    font-weight: 400;
+    src: url('/fonts/SuisseWorks/SuisseWorks-Regular-WebS.woff2') format('woff2'),
+        url('/fonts/SuisseWorks/SuisseWorks-Regular-WebS.woff') format('woff');
+}
+
+@font-face {
+    font-family: 'SuisseWorks';
+    font-style: italic;
+    font-weight: 400;
+    src: url('/fonts/SuisseWorks/SuisseWorks-RegularItalic-WebS.woff2') format('woff2'),
+        url('/fonts/SuisseWorks/SuisseWorks-RegularItalic-WebS.woff') format('woff');
+}
+
+@font-face {
+    font-family: 'SuisseIntl';
+    font-style: normal;
+    font-weight: 400;
+    src: url('/fonts/SuisseIntl/SuisseIntl-Regular-WebS.woff2') format('woff2'),
+        url('/fonts/SuisseIntl/SuisseIntl-Regular-WebS.woff') format('woff');
+}

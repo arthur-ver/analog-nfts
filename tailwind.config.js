@@ -7,8 +7,26 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: {
-        mono: ['IBM Plex Mono', ...defaultTheme.fontFamily.mono]
+        mono: ['IBM Plex Mono', ...defaultTheme.fontFamily.mono],
+        serif: ['SuisseWorks', ...defaultTheme.fontFamily.serif],
+        sans: ['SuisseIntl', ...defaultTheme.fontFamily.sans]
       },
+      typography: {
+        DEFAULT: {
+          css: {
+            color: '#000',
+            fontSize: '0.875rem',
+            lineHeight: '1.25rem',
+            a: {
+              color: '#000',
+              textDecoration: 'none',
+              '&:hover': {
+                color: '#000',
+              },
+            },
+          },
+        },
+      }
     },
     minHeight: {
       '4' : '4rem'

@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { useCallback, useState } from 'react'
 import { useZora } from './ZoraProvider'
 import { signIn, signOut, useSession } from 'next-auth/client'
+import { AccountPopover } from './AccountPopover'
 
 const Header = () => {
     const [ session, loading ] = useSession()
@@ -27,31 +28,33 @@ const Header = () => {
     }, [signer, address])
 
     return (
-        <header className="sticky top-0 z-10 bg-white flex justify-between items-centered border-b border-gray-300 pt-4 pl-6 pr-6 pb-4">
+        <header className="filter sticky top-0 z-10 flex justify-between items-centered border-b border-gray-300 pt-4 pl-6 pr-6 pb-4 bg-white bg-opacity-90 backdrop-filter backdrop-blur-sm">
             <div className="flex items-center space-x-3">
                 <Link href="/">
                     <a><span className="font-bold text-2xl">ANALOG</span></a>
                 </Link>
                 <span>NFT platform</span>
             </div>
-            <div className="flex items-center space-x-6">
+            <div className="flex items-center space-x-6 prose">
                 <Link href="/">
-                    <a className="ext-gray-500 font-medium hover:underline">Explore</a>
+                    <a className="hover:underline">Explore</a>
                 </Link>
                 <Link href="/">
-                    <a className="ext-gray-500 font-medium hover:underline">FAQ</a>
+                    <a className="hover:underline">FAQ</a>
                 </Link>
                 {address ? (
                     <div className="flex items-center space-x-6">
                         {session ? (
                             <>
                                 <Link href="/mint">
-                                    <button className="bg-blue-500 hover:bg-blue-700 text-white py-2 px-4 rounded">Mint</button>
+                                    <button className="border border-black py-2 px-6 rounded-full focus:outline-none hover:bg-white hover:text-black">Mint</button>
                                 </Link>
-                                <div className="flex items-center space-x-3">
-                                    <div className="w-10 h-10 bg-cover bg-no-repeat rounded-sm rounded-full" style={{backgroundImage: `url(${identicon})`}}></div>
-                                    <span>{disp_address}</span>
-                                </div>
+                                <AccountPopover children={(
+                                    <div className="py-2 px-2 pr-4 rounded-full flex items-center space-x-3 shadow hover:bg-gray-100">
+                                        <div className="w-6 h-6 bg-cover bg-no-repeat rounded-sm rounded-full" style={{backgroundImage: `url(${identicon})`}}></div>
+                                        <span>@arthur.verny</span>
+                                    </div>
+                                )} />
                                 <button onClick={() => signOut()} disabled={isLoading} className="bg-blue-500 hover:bg-blue-700 text-white py-2 px-4 rounded">
                                     Logout
                                 </button>

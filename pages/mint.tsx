@@ -6,12 +6,13 @@ import * as nsfwjs from 'nsfwjs'
 import { Dropzone } from '../components/Dropzone'
 import { getFileExtension, getSignedUrl, uploadFile, uploadToImagekit, createDraft } from '../lib/helpers'
 import NProgress from 'nprogress'
-import { XIcon } from '@heroicons/react/outline'
+import { XIcon, TrashIcon } from '@heroicons/react/outline'
 import { SignedResponse } from '../util/types'
 import { CircleSpinner } from 'react-spinners-kit'
 import { useSession, getSession } from 'next-auth/client'
 import Error from 'next/error'
 import prisma from '../lib/prisma'
+import { HorizontalProgress } from '../components/HorizontalProgress'
 
 const Mint = ({ draft }) => {
     const [session, loading] = useSession()
@@ -21,7 +22,7 @@ const Mint = ({ draft }) => {
     const [uploading, setUploading] = useState<boolean>(false)
     const [imagePreview, setImagePreview] = useState<any>(undefined)
     const [file, setFile] = useState<File | undefined>(undefined)
-    const [isDraft, setIsDraft] = useState<boolean>(false)
+    const [stepState, setStepState] = useState<number>()
 
     const upload = async (e) => {
         e.preventDefault()
@@ -40,7 +41,7 @@ const Mint = ({ draft }) => {
                 const imagekitResponse = await uploadToImagekit(s3FileUrl, s3FileName, fileExtension)
                 const imagekitUploadedName = imagekitResponse.name
                 const newDraftResponse = await createDraft(imagekitUploadedName, cid_v0)
-                if (newDraftResponse) setIsDraft(true)
+                if (newDraftResponse) setStepState(1)
             }
         } catch (e) {
             if (e.getSignedUrl) console.log('failed to initiate upload')
@@ -84,6 +85,13 @@ const Mint = ({ draft }) => {
         return <Error statusCode={400} title="Unauthorized" />
     }
 
+    useEffect(() => {
+        const { photoCID, metadataCID, photoCDN, title, description } = draft
+        if (photoCID && photoCDN) setStepState(1)
+        else if (title && description && metadataCID) setStepState(2)
+        else setStepState(0)
+    }, [draft])
+
     return <>
         <Head>
             <title>ANALOG NFTs – Mint new NFT</title>
@@ -102,66 +110,74 @@ const Mint = ({ draft }) => {
                     </div>
 
                     <div className="mt-5 md:mt-0 md:col-span-2">
-                        { !isDraft && !draft ?
-                            <div className="shadow sm:rounded-md sm:overflow-hidden">
-                                <div className="p-0 bg-white relative">
-                                    <div className={`${uploading ? 'opacity-60' : ''} relative`}>
-                                        <Dropzone onDrop={onDrop} imagePreview={imagePreview} />
-                                        {imagePreview &&
-                                            <button onClick={() => resetFile()} disabled={disableBtn} className='rounded-full bg-black bg-opacity-50 hover:bg-opacity-70 absolute top-2 left-2 p-1'>
-                                                <XIcon className="w-4 h-4 text-white" />
-                                            </button>
-                                        }
-                                    </div>
-                                    {uploading &&
-                                        <div className='absolute top-0 left-0 right-0 bottom-0 flex items-center justify-center'>
-                                            <CircleSpinner color='#4e46e5' />
-                                        </div>
+                        <HorizontalProgress step={stepState} />
+                        { stepState == 0 ?
+                        <div className="shadow sm:rounded-md sm:overflow-hidden">
+                            <div className="p-0 bg-white relative">
+                                <div className={`${uploading ? 'opacity-60' : ''} relative`}>
+                                    <Dropzone onDrop={onDrop} imagePreview={imagePreview} />
+                                    {imagePreview &&
+                                        <button onClick={() => resetFile()} disabled={disableBtn} className='rounded-full bg-black bg-opacity-50 hover:bg-opacity-70 absolute top-2 left-2 p-1'>
+                                            <XIcon className="w-4 h-4 text-white" />
+                                        </button>
                                     }
                                 </div>
-                                <div className="px-4 py-3 bg-gray-50 text-right ">
-                                    <button onClick={(e) => upload(e)} disabled={disableBtn} type="submit" className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50">
-                                    Upload image
-                                    </button>
+                                {uploading &&
+                                    <div className='absolute top-0 left-0 right-0 bottom-0 flex items-center justify-center'>
+                                        <CircleSpinner color='#4e46e5' />
+                                    </div>
+                                }
+                            </div>
+                            <div className="px-4 py-3 bg-gray-50 text-right ">
+                                <button onClick={(e) => upload(e)} disabled={disableBtn} type="button" className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50">
+                                Upload image
+                                </button>
+                            </div>
+                        </div>
+                        : stepState == 1 ?
+                        <div className="shadow sm:rounded-md sm:overflow-hidden">
+                            <div className="px-4 py-5 bg-white space-y-6 sm:p-6">
+                                <div>
+                                    <label htmlFor="title" className="block text-sm font-medium text-gray-700">Title</label>
+                                    <input type="text" name="title" id="title" maxLength={60} className="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md" />
+                                </div>
+
+                                <div>
+                                    <label htmlFor="description" className="block text-sm font-medium text-gray-700">
+                                        Description
+                                    </label>
+                                    <div className="mt-1">
+                                        <textarea id="description" name="description" maxLength={255} rows={3} className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 mt-1 block w-full sm:text-sm border-gray-300 rounded-md" placeholder="Brief description for your NFT"></textarea>
+                                    </div>
+                                    <p className="mt-2 text-sm text-gray-500">
+                                        Max 255 characters.
+                                    </p>
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700">
+                                        Creator share on sell (%)
+                                    </label>
+                                    <div className="mt-1 space-x-2">
+                                        <button onClick={(e) => setCreatorShare(5)} type="button" className={`bg-white py-2 px-3 border border-gray-300 rounded-md shadow-sm text-sm leading-4 font-medium hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 ${creatorShare == 5 ? 'bg-indigo-600 hover:bg-indigo-700 text-white' : 'text-gray-700'}`}>5</button>
+                                        <button onClick={(e) => setCreatorShare(10)} type="button" className={`bg-white py-2 px-3 border border-gray-300 rounded-md shadow-sm text-sm leading-4 font-medium hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 ${creatorShare == 10 ? 'bg-indigo-600 hover:bg-indigo-700 text-white' : 'text-gray-700'}`}>10</button>
+                                        <button onClick={(e) => setCreatorShare(15)} type="button" className={`bg-white py-2 px-3 border border-gray-300 rounded-md shadow-sm text-sm leading-4 font-medium hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 ${creatorShare == 15 ? 'bg-indigo-600 hover:bg-indigo-700 text-white' : 'text-gray-700'}`}>15</button>
+                                    </div>
                                 </div>
                             </div>
-                            :
-                            <div className="shadow sm:rounded-md sm:overflow-hidden">
-                                <div className="px-4 py-5 bg-white space-y-6 sm:p-6">
-                                    <div>
-                                        <label htmlFor="title" className="block text-sm font-medium text-gray-700">Title</label>
-                                        <input type="text" name="title" id="title" maxLength={60} className="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md" />
-                                    </div>
-
-                                    <div>
-                                        <label htmlFor="description" className="block text-sm font-medium text-gray-700">
-                                            Description
-                                        </label>
-                                        <div className="mt-1">
-                                            <textarea id="description" name="description" maxLength={255} rows={3} className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 mt-1 block w-full sm:text-sm border-gray-300 rounded-md" placeholder="Brief description for your NFT"></textarea>
-                                        </div>
-                                        <p className="mt-2 text-sm text-gray-500">
-                                            Max 255 characters.
-                                        </p>
-                                    </div>
-
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700">
-                                            Creator share on sell (%)
-                                        </label>
-                                        <div className="mt-1 space-x-2">
-                                            <button onClick={(e) => setCreatorShare(5)} type="button" className={`bg-white py-2 px-3 border border-gray-300 rounded-md shadow-sm text-sm leading-4 font-medium hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 ${creatorShare == 5 ? 'bg-indigo-600 hover:bg-indigo-700 text-white' : 'text-gray-700'}`}>5</button>
-                                            <button onClick={(e) => setCreatorShare(10)} type="button" className={`bg-white py-2 px-3 border border-gray-300 rounded-md shadow-sm text-sm leading-4 font-medium hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 ${creatorShare == 10 ? 'bg-indigo-600 hover:bg-indigo-700 text-white' : 'text-gray-700'}`}>10</button>
-                                            <button onClick={(e) => setCreatorShare(15)} type="button" className={`bg-white py-2 px-3 border border-gray-300 rounded-md shadow-sm text-sm leading-4 font-medium hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 ${creatorShare == 15 ? 'bg-indigo-600 hover:bg-indigo-700 text-white' : 'text-gray-700'}`}>15</button>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className="px-4 py-3 bg-gray-50 text-right sm:px-6">
-                                    <button type="submit" className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50">
-                                    Upload image
-                                    </button>
-                                </div>
+                            <div className="px-4 py-3 bg-gray-50 text-right sm:px-6">
+                                <button type="button" className="inline-flex justify-center py-2 px-4">
+                                    <TrashIcon className="h-4 text-red-500"/>
+                                </button>
+                                <button type="button" className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50">
+                                    Save metadata
+                                </button>
+                                <button type="button" className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50">
+                                    Mint NFT
+                                </button>
                             </div>
+                        </div>
+                        : <></>
                         }
                     </div>
                 </div>
@@ -172,15 +188,15 @@ const Mint = ({ draft }) => {
 
 export async function getServerSideProps(context) {
     const session = await getSession(context)
-    const draft = await prisma.draftNft.findFirst({
-        where: {
-            user: { id: session.id }
-        }
-    })
-    if (draft) {
-        return {
-            props: { session, draft }
-        }
+    if (session) {
+        const { id } = session 
+        const draft = await prisma.draftNft.findFirst({
+            where: {
+                user: { id }
+            }
+        })
+        if (draft) return { props: { session, draft } }
+        else return { props: { session } }
     } else {
         return {
             props: { session }

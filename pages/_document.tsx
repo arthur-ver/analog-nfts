@@ -12,8 +12,9 @@ class MyDocument extends Document {
                 <Head>
                     <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="true" />
                     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
+                    <link href="/fonts/fonts.css" rel="stylesheet" />
                 </Head>
-                <body className="font-mono dark:bg-black dark:text-white">
+                <body className="font-sans dark:bg-black dark:text-white">
                     <Main />
                     <NextScript />
                 </body>
