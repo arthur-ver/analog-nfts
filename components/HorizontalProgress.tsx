@@ -56,9 +56,6 @@ const HorizontalProgress = ({step}) => {
     return (
         <div className="max-w-xl mx-auto my-4 pb-4">	
             <div className="flex pb-3">
-                <div className="flex-1">
-                </div>
-
                 { stepState == 0 ? <>
                         <StepIncomplete />
                         <BarIncomplete />
@@ -82,22 +79,25 @@ const HorizontalProgress = ({step}) => {
                     </>
                 : <></>
                 }
-
-                <div className="flex-1">
-                </div>
             </div>
             
             <div className="flex text-xs content-center text-center">
-                <div className="w-1/3">
-                    Upload image
+                <div className="flex-1">
+                    Photo
+                </div>
+
+                <div className="w-1/4">
                 </div>
                 
-                <div className="w-1/3">
-                    Set metadata
+                <div className="flex-1">
+                    Metadata
+                </div>
+
+                <div className="w-1/4">
                 </div>
                 
-                <div className="w-1/3">
-                    Mint NFT
+                <div className="flex-1">
+                    Mint
                 </div>		
             </div>
         </div>

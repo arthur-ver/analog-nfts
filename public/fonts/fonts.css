@@ -18,6 +18,6 @@
     font-family: 'SuisseIntl';
     font-style: normal;
     font-weight: 400;
-    src: url('/fonts/SuisseIntl/SuisseIntl-Regular-WebS.woff2') format('woff2'),
-        url('/fonts/SuisseIntl/SuisseIntl-Regular-WebS.woff') format('woff');
+    src: url('/fonts/SuisseIntl/SuisseIntl-Medium-WebS.woff2') format('woff2'),
+        url('/fonts/SuisseIntl/SuisseIntl-Medium-WebS.woff') format('woff');
 }

@@ -28,7 +28,7 @@ const Header = () => {
     }, [signer, address])
 
     return (
-        <header className="filter sticky top-0 z-10 flex justify-between items-centered border-b border-gray-300 pt-4 pl-6 pr-6 pb-4 bg-white bg-opacity-90 backdrop-filter backdrop-blur-sm">
+        <header className="filter sticky top-0 z-10 flex justify-between items-centered border-b border-gray-200 pt-4 pl-6 pr-6 pb-4 bg-white bg-opacity-90 backdrop-filter backdrop-blur-sm">
             <div className="flex items-center space-x-3">
                 <Link href="/">
                     <a><span className="font-bold text-2xl">ANALOG</span></a>
@@ -47,7 +47,9 @@ const Header = () => {
                         {session ? (
                             <>
                                 <Link href="/mint">
-                                    <button className="border border-black py-2 px-6 rounded-full focus:outline-none hover:bg-white hover:text-black">Mint</button>
+                                    <button className="border-2 border-black py-2 px-6 rounded-full bg-black text-white focus:outline-none hover:bg-transparent hover:text-black transition-colors duration-200">
+                                        Mint
+                                    </button>
                                 </Link>
                                 <AccountPopover children={(
                                     <div className="py-2 px-2 pr-4 rounded-full flex items-center space-x-3 shadow hover:bg-gray-100">
@@ -55,18 +57,18 @@ const Header = () => {
                                         <span>@arthur.verny</span>
                                     </div>
                                 )} />
-                                <button onClick={() => signOut()} disabled={isLoading} className="bg-blue-500 hover:bg-blue-700 text-white py-2 px-4 rounded">
+                                <button onClick={() => signOut()} disabled={isLoading} className="hidden bg-blue-500 hover:bg-blue-700 text-white py-2 px-4 rounded">
                                     Logout
                                 </button>
                             </>
                         ) : (
-                            <button onClick={() => handleSignInClick()} disabled={isLoading} className="bg-blue-500 hover:bg-blue-700 text-white py-2 px-4 rounded">
+                            <button onClick={() => handleSignInClick()} disabled={isLoading} className="border-2 border-black py-2 px-6 rounded-full bg-black text-white focus:outline-none hover:bg-transparent hover:text-black transition-colors duration-200">
                                 {isLoading ? 'Verifying...' : 'Login'}
                             </button>
                         )}
                     </div>
                 ) : (
-                    <button onClick={handleConnectClick} disabled={isLoading} className="bg-blue-500 hover:bg-blue-700 text-white py-2 px-4 rounded">
+                    <button onClick={handleConnectClick} disabled={isLoading} className="border-2 border-black py-2 px-6 rounded-full bg-black text-white focus:outline-none hover:bg-transparent hover:text-black transition-colors duration-200">
                         {isLoading ? 'Connecting...' : 'Connect to MetaMask'}
                     </button>
                 )}

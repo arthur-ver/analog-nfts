@@ -101,16 +101,16 @@ const Mint = ({ draft }) => {
             <div>
                 <div className="md:grid md:grid-cols-3 md:gap-6">
                     <div className="md:col-span-1 prose max-w-full">
-                        <div className="px-4 sm:px-0">
+                        <div className="px-4 sm:px-0 mb-8">
                             <h3>Mint your NFT</h3>
                             <p className="mt-1 text-sm text-gray-600">
                             This information will be publicly stored on the blockchain. Please do not enter any personal information.
                             </p>
                         </div>
+                        <HorizontalProgress step={stepState} />
                     </div>
 
                     <div className="mt-5 md:mt-0 md:col-span-2">
-                        <HorizontalProgress step={stepState} />
                         { stepState == 0 ?
                         <div className="shadow sm:rounded-md sm:overflow-hidden">
                             <div className="p-0 bg-white relative">
@@ -135,19 +135,15 @@ const Mint = ({ draft }) => {
                             </div>
                         </div>
                         : stepState == 1 ?
-                        <div className="shadow sm:rounded-md sm:overflow-hidden">
+                        <>
                             <div className="px-4 py-5 bg-white space-y-6 sm:p-6">
                                 <div>
-                                    <label htmlFor="title" className="block text-sm font-medium text-gray-700">Title</label>
-                                    <input type="text" name="title" id="title" maxLength={60} className="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md" />
+                                    <input type="text" name="title" id="title" maxLength={60} className="mt-1 py-4 px-4 w-full shadow-sm rounded-lg focus:ring-black focus:border-black border-gray-200" placeholder="Title" />
                                 </div>
 
                                 <div>
-                                    <label htmlFor="description" className="block text-sm font-medium text-gray-700">
-                                        Description
-                                    </label>
                                     <div className="mt-1">
-                                        <textarea id="description" name="description" maxLength={255} rows={3} className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 mt-1 block w-full sm:text-sm border-gray-300 rounded-md" placeholder="Brief description for your NFT"></textarea>
+                                        <textarea id="description" name="description" maxLength={255} rows={3} className="mt-1 py-4 px-4 w-full shadow-sm rounded-lg focus:ring-black focus:border-black border-gray-200" placeholder="Brief description"></textarea>
                                     </div>
                                     <p className="mt-2 text-sm text-gray-500">
                                         Max 255 characters.
@@ -165,18 +161,15 @@ const Mint = ({ draft }) => {
                                     </div>
                                 </div>
                             </div>
-                            <div className="px-4 py-3 bg-gray-50 text-right sm:px-6">
-                                <button type="button" className="inline-flex justify-center py-2 px-4">
-                                    <TrashIcon className="h-4 text-red-500"/>
+                            <div className="flex justify-between px-4 py-3 text-right sm:px-6">
+                                <button type="button" className="flex focus:outline-none justify-center items-center space-x-2 py-2 px-6 rounded-full flex items-center space-x-3 shadow hover:bg-gray-100">
+                                    <TrashIcon className="h-5 text-black"/><span>Delete draft</span>
                                 </button>
-                                <button type="button" className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50">
-                                    Save metadata
-                                </button>
-                                <button type="button" className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50">
-                                    Mint NFT
+                                <button type="button" className="border-2 border-black py-2 px-6 rounded-full bg-black text-white focus:outline-none hover:bg-transparent hover:text-black transition-colors duration-200">
+                                    Proceed to mint
                                 </button>
                             </div>
-                        </div>
+                        </>
                         : <></>
                         }
                     </div>
