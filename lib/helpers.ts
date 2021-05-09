@@ -84,7 +84,8 @@ const createDraft = async (photoCID: string, photoCDN: string) => {
             }),
         })
         if (response.status == 200) {
-            return true
+            const jsonResponse = await response.json()
+            return jsonResponse
         } else {
             throw { createDraft: true }
         }

@@ -13,6 +13,7 @@ import { useSession, getSession } from 'next-auth/client'
 import Error from 'next/error'
 import prisma from '../lib/prisma'
 import { HorizontalProgress } from '../components/HorizontalProgress'
+import { IKImage, IKContext } from 'imagekitio-react'
 
 const Mint = ({ draft }) => {
     const [session, loading] = useSession()
@@ -23,6 +24,15 @@ const Mint = ({ draft }) => {
     const [imagePreview, setImagePreview] = useState<any>(undefined)
     const [file, setFile] = useState<File | undefined>(undefined)
     const [stepState, setStepState] = useState<number>()
+    const [newDraft, setNewDraft] = useState<any>({
+        id: null,
+        metadataCID: null,
+        photoCDN: null,
+        photoCID: null,
+        title: null,
+        userId: null,
+        description: null
+    })
 
     const upload = async (e) => {
         e.preventDefault()
@@ -40,8 +50,11 @@ const Mint = ({ draft }) => {
                 const fileExtension = getFileExtension(file.name)
                 const imagekitResponse = await uploadToImagekit(s3FileUrl, s3FileName, fileExtension)
                 const imagekitUploadedName = imagekitResponse.name
-                const newDraftResponse = await createDraft(imagekitUploadedName, cid_v0)
-                if (newDraftResponse) setStepState(1)
+                const newDraftResponse = await createDraft(cid_v0, imagekitUploadedName)
+                if (newDraftResponse) {
+                    setNewDraft(newDraftResponse.draft)
+                    setStepState(1)
+                }
             }
         } catch (e) {
             if (e.getSignedUrl) console.log('failed to initiate upload')
@@ -86,10 +99,13 @@ const Mint = ({ draft }) => {
     }
 
     useEffect(() => {
-        const { photoCID, metadataCID, photoCDN, title, description } = draft
-        if (photoCID && photoCDN) setStepState(1)
-        else if (title && description && metadataCID) setStepState(2)
-        else setStepState(0)
+        if (draft) {
+            const { photoCID, metadataCID, photoCDN, title, description } = draft
+            if (photoCID && photoCDN) setStepState(1)
+            else if (title && description && metadataCID) setStepState(2)
+        } else {
+            setStepState(0)
+        }
     }, [draft])
 
     return <>
@@ -136,38 +152,52 @@ const Mint = ({ draft }) => {
                         </div>
                         : stepState == 1 ?
                         <>
-                            <div className="px-4 py-5 bg-white space-y-6 sm:p-6">
-                                <div>
-                                    <input type="text" name="title" id="title" maxLength={60} className="mt-1 py-4 px-4 w-full shadow-sm rounded-lg focus:ring-black focus:border-black border-gray-200" placeholder="Title" />
-                                </div>
-
-                                <div>
-                                    <div className="mt-1">
-                                        <textarea id="description" name="description" maxLength={255} rows={3} className="mt-1 py-4 px-4 w-full shadow-sm rounded-lg focus:ring-black focus:border-black border-gray-200" placeholder="Brief description"></textarea>
+                            <div className="md:grid md:grid-cols-3 md:gap-6">
+                                <div className="md:col-span-2 prose max-w-full">
+                                    <div className="px-4 py-5 bg-white space-y-6 sm:p-6">
+                                        <input type="text" name="title" id="title" maxLength={60} className="mt-1 py-4 px-4 w-full shadow-sm rounded-lg focus:ring-black focus:border-black border-gray-200" placeholder="Title" />
+                                    <div>
+                                        <div className="mt-1">
+                                            <textarea id="description" name="description" maxLength={255} rows={3} className="mt-1 py-4 px-4 w-full shadow-sm rounded-lg focus:ring-black focus:border-black border-gray-200" placeholder="Brief description"></textarea>
+                                        </div>
+                                        <p className="mt-2 text-sm text-gray-500">
+                                            Max 255 characters.
+                                        </p>
                                     </div>
-                                    <p className="mt-2 text-sm text-gray-500">
-                                        Max 255 characters.
-                                    </p>
-                                </div>
-
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700">
-                                        Creator share on sell (%)
-                                    </label>
-                                    <div className="mt-1 space-x-2">
-                                        <button onClick={(e) => setCreatorShare(5)} type="button" className={`bg-white py-2 px-3 border border-gray-300 rounded-md shadow-sm text-sm leading-4 font-medium hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 ${creatorShare == 5 ? 'bg-indigo-600 hover:bg-indigo-700 text-white' : 'text-gray-700'}`}>5</button>
-                                        <button onClick={(e) => setCreatorShare(10)} type="button" className={`bg-white py-2 px-3 border border-gray-300 rounded-md shadow-sm text-sm leading-4 font-medium hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 ${creatorShare == 10 ? 'bg-indigo-600 hover:bg-indigo-700 text-white' : 'text-gray-700'}`}>10</button>
-                                        <button onClick={(e) => setCreatorShare(15)} type="button" className={`bg-white py-2 px-3 border border-gray-300 rounded-md shadow-sm text-sm leading-4 font-medium hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 ${creatorShare == 15 ? 'bg-indigo-600 hover:bg-indigo-700 text-white' : 'text-gray-700'}`}>15</button>
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700">
+                                            Creator share on sell (%)
+                                        </label>
+                                        <div className="mt-1 space-x-2">
+                                            <button onClick={(e) => setCreatorShare(5)} type="button" className={`bg-white py-2 px-3 border border-gray-300 rounded-md shadow-sm text-sm leading-4 font-medium hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 ${creatorShare == 5 ? 'bg-indigo-600 hover:bg-indigo-700 text-white' : 'text-gray-700'}`}>5</button>
+                                            <button onClick={(e) => setCreatorShare(10)} type="button" className={`bg-white py-2 px-3 border border-gray-300 rounded-md shadow-sm text-sm leading-4 font-medium hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 ${creatorShare == 10 ? 'bg-indigo-600 hover:bg-indigo-700 text-white' : 'text-gray-700'}`}>10</button>
+                                            <button onClick={(e) => setCreatorShare(15)} type="button" className={`bg-white py-2 px-3 border border-gray-300 rounded-md shadow-sm text-sm leading-4 font-medium hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 ${creatorShare == 15 ? 'bg-indigo-600 hover:bg-indigo-700 text-white' : 'text-gray-700'}`}>15</button>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                            <div className="flex justify-between px-4 py-3 text-right sm:px-6">
-                                <button type="button" className="flex focus:outline-none justify-center items-center space-x-2 py-2 px-6 rounded-full flex items-center space-x-3 shadow hover:bg-gray-100">
-                                    <TrashIcon className="h-5 text-black"/><span>Delete draft</span>
-                                </button>
-                                <button type="button" className="border-2 border-black py-2 px-6 rounded-full bg-black text-white focus:outline-none hover:bg-transparent hover:text-black transition-colors duration-200">
-                                    Proceed to mint
-                                </button>
+                                <div className="flex justify-between px-4 py-3 text-right sm:px-6">
+                                    <button type="button" className="flex focus:outline-none justify-center items-center space-x-2 py-2 px-6 rounded-full flex items-center space-x-3 shadow hover:bg-gray-100">
+                                        <TrashIcon className="h-5 text-black"/><span>Delete draft</span>
+                                    </button>
+                                    <button type="button" className="border-2 border-black py-2 px-6 rounded-full bg-black text-white focus:outline-none hover:bg-transparent hover:text-black transition-colors duration-200">
+                                        Proceed to mint
+                                    </button>
+                                </div>
+                                </div>
+                                <div className="md:col-span-1 prose max-w-full">
+                                    <IKContext urlEndpoint={`https://ik.imagekit.io/${process.env.NEXT_PUBLIC_IMAGEKIT_ID}/`}>
+                                    { draft ? 
+                                        <IKImage className="w-full" 
+                                            path={draft.photoCDN} transformation={[{"height": "900","width": "720"}]}
+                                            loading="lazy"
+                                            lqip={{ active: true, blur: 10 }} />
+                                    :   <IKImage className="w-full" 
+                                            path={newDraft.photoCDN} transformation={[{"height": "900","width": "720"}]}
+                                            loading="lazy"
+                                            lqip={{ active: true, blur: 10 }} />
+                                    }
+                                    </IKContext>
+                                </div>
                             </div>
                         </>
                         : <></>

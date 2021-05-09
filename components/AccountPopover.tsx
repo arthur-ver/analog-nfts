@@ -1,5 +1,6 @@
 import { Popover, Transition } from '@headlessui/react'
 import { Fragment } from 'react'
+import { signOut } from 'next-auth/client'
 
 const solutions = [
   {
@@ -9,11 +10,6 @@ const solutions = [
   },
   {
     name: 'Settings',
-    href: "##",
-    icon: IconTwo,
-  },
-  {
-    name: 'Logout',
     href: "##",
     icon: IconTwo,
   },
@@ -57,6 +53,18 @@ const AccountPopover = ({ children }) => {
                         </div>
                       </a>
                     ))}
+                  </div>
+                  <div className="p-4 bg-gray-50">
+                    <button onClick={() => signOut()} className="w-full flex items-center p-2 -m-3 transition duration-150 ease-in-out rounded-lg hover:bg-gray-100 focus:outline-none focus-visible:ring focus-visible:ring-orange-500 focus-visible:ring-opacity-50">
+                        <div className="flex items-center justify-center flex-shrink-0 w-10 h-10 text-white">
+                          <IconOne aria-hidden="true" />
+                        </div>
+                        <div className="ml-4">
+                          <p className="text-sm font-medium text-gray-900 my-0">
+                            Logout
+                          </p>
+                        </div>
+                      </button>
                   </div>
                 </div>
               </Popover.Panel>

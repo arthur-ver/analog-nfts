@@ -20,7 +20,7 @@ const Dropzone = ({ onDrop, imagePreview }: Props) => {
     return (
         <div className={`${imagePreview ? 'px-0 py-0 sm:p-0' : 'px-4 py-3'}`}>
             {!imagePreview &&
-                <div {...getRootProps()} className={`${isDragActive ? 'bg-blue-50' : 'bg-grey-100'} mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md`}>
+                <div {...getRootProps()} className={`${isDragActive ? 'bg-blue-50' : 'bg-grey-100'} mt-1 flex justify-center px-6 pt-9 pb-10 border-2 border-gray-300 border-dashed rounded-md`}>
                     <div className="space-y-1 text-center">
                     <UploadIcon className="stroke-0 mx-auto h-8 w-8 text-gray-300" />
                     <div className="flex text-sm text-gray-600">

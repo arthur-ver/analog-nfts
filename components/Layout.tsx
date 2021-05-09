@@ -11,10 +11,7 @@ const Header = () => {
 
     const handleConnectClick = useCallback(() => {
         setLoading(true)
-        authenticate().then(() => {
-            setLoading(false)
-        })
-        .catch(() => {
+        authenticate().finally(() => {
             setLoading(false)
         })
     }, [authenticate])
@@ -57,9 +54,6 @@ const Header = () => {
                                         <span>@arthur.verny</span>
                                     </div>
                                 )} />
-                                <button onClick={() => signOut()} disabled={isLoading} className="hidden bg-blue-500 hover:bg-blue-700 text-white py-2 px-4 rounded">
-                                    Logout
-                                </button>
                             </>
                         ) : (
                             <button onClick={() => handleSignInClick()} disabled={isLoading} className="border-2 border-black py-2 px-6 rounded-full bg-black text-white focus:outline-none hover:bg-transparent hover:text-black transition-colors duration-200">

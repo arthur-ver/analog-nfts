@@ -69,9 +69,9 @@ const Index = ({ items }: InferGetServerSidePropsType<typeof getServerSideProps>
                                 <Link key={nft.tokenId} href={`/item/${encodeURIComponent(nft.tokenId)}`}>
                                     <a>
                                         <IKImage className="w-full" 
-                                        path={nft.photoCDN} transformation={[{"height": "900","width": "720"}]}
-                                        loading="lazy"
-                                        lqip={{ active: true, blur: 10 }} />
+                                            path={nft.photoCDN} transformation={[{"height": "900","width": "720"}]}
+                                            loading="lazy"
+                                            lqip={{ active: true, blur: 10 }} />
                                     </a>
                                 </Link>
                                 <div className="flex flex-col pt-8 space-y-4 prose">
