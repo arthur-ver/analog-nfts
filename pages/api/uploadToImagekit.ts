@@ -8,7 +8,7 @@ var imagekit = new ImageKit({
     publicKey : process.env.NEXT_PUBLIC_IMAGEKIT_PUBLIC,
     privateKey : process.env.IMAGEKIT_PRIVATE,
     urlEndpoint : `https://ik.imagekit.io/${process.env.NEXT_PUBLIC_IMAGEKIT_ID}/`
-});
+})
 
 export default async (req: NextApiRequest, res: NextApiResponse) => {
     const { body } = req

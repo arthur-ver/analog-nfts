@@ -71,7 +71,7 @@ const uploadToImagekit = async (url: string, fileName: string, fileExtension: st
     }
 }
 
-const createDraft = async (photoCID: string, photoCDN: string) => {
+const createDraft = async (photoCID: string, photoCDN: string, photoCDNid: string, s3Key: string) => {
     try {
         const response = await fetch(`${prefixURL}/api/saveDraft`, {
             headers: {
@@ -80,7 +80,9 @@ const createDraft = async (photoCID: string, photoCDN: string) => {
             method: 'POST',
             body: JSON.stringify({ 
                 photoCID,
-                photoCDN
+                photoCDN,
+                photoCDNid,
+                s3Key
             }),
         })
         if (response.status == 200) {
@@ -94,4 +96,26 @@ const createDraft = async (photoCID: string, photoCDN: string) => {
     }
 }
 
-export { getFileExtension, getSignedUrl, uploadFile, uploadToImagekit, createDraft }
+const deleteDraft = async(id: string) => {
+    try {
+        const response = await fetch(`${prefixURL}/api/deleteDraft`, {
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            method: 'POST',
+            body: JSON.stringify({
+                id
+            }),
+        })
+        if (response.status == 200) {
+            const jsonResponse = await response.json()
+            return jsonResponse
+        } else {
+            throw { deleteDraft: true }
+        }
+    } catch (e) {
+        throw e
+    }
+}
+
+export { getFileExtension, getSignedUrl, uploadFile, uploadToImagekit, createDraft, deleteDraft }

@@ -4,7 +4,7 @@ import React, { useState, useEffect, useCallback } from 'react'
 import { useZora } from '../components/ZoraProvider'
 import * as nsfwjs from 'nsfwjs'
 import { Dropzone } from '../components/Dropzone'
-import { getFileExtension, getSignedUrl, uploadFile, uploadToImagekit, createDraft } from '../lib/helpers'
+import { getFileExtension, getSignedUrl, uploadFile, uploadToImagekit, createDraft, deleteDraft } from '../lib/helpers'
 import NProgress from 'nprogress'
 import { XIcon, TrashIcon } from '@heroicons/react/outline'
 import { SignedResponse } from '../util/types'
@@ -50,10 +50,12 @@ const Mint = ({ draft }) => {
                 const fileExtension = getFileExtension(file.name)
                 const imagekitResponse = await uploadToImagekit(s3FileUrl, s3FileName, fileExtension)
                 const imagekitUploadedName = imagekitResponse.name
-                const newDraftResponse = await createDraft(cid_v0, imagekitUploadedName)
+                const imagekitFileId = imagekitResponse.fileId
+                const newDraftResponse = await createDraft(cid_v0, imagekitUploadedName, imagekitFileId, s3FileUrl)
                 if (newDraftResponse) {
                     setNewDraft(newDraftResponse.draft)
                     setStepState(1)
+                    resetFile()
                 }
             }
         } catch (e) {
@@ -81,6 +83,31 @@ const Mint = ({ draft }) => {
         setFile(undefined)
     }
 
+    const resetDraft = async () => {
+        NProgress.start()
+        setDisableBtn(true)
+        try {
+            const deleteDraftResponse = await deleteDraft(draft ? draft.id : newDraft.id)
+            if (deleteDraftResponse) {
+                setNewDraft({
+                    id: null,
+                    metadataCID: null,
+                    photoCDN: null,
+                    photoCID: null,
+                    title: null,
+                    userId: null,
+                    description: null
+                })
+                setStepState(0)
+            }
+        } catch (e) {
+            console.log('Error while deleteting draft')
+        } finally {
+            setDisableBtn(false)
+            NProgress.done()
+        }
+    } 
+
     const onDrop = useCallback(acceptedFiles => {
         if (acceptedFiles.length == 0) return
         const file = acceptedFiles[0]
@@ -100,6 +127,7 @@ const Mint = ({ draft }) => {
 
     useEffect(() => {
         if (draft) {
+            setDisableBtn(false)
             const { photoCID, metadataCID, photoCDN, title, description } = draft
             if (photoCID && photoCDN) setStepState(1)
             else if (title && description && metadataCID) setStepState(2)
@@ -176,15 +204,20 @@ const Mint = ({ draft }) => {
                                     </div>
                                 </div>
                                 <div className="flex justify-between px-4 py-3 text-right sm:px-6">
-                                    <button type="button" className="flex focus:outline-none justify-center items-center space-x-2 py-2 px-6 rounded-full flex items-center space-x-3 shadow hover:bg-gray-100">
+                                    <button onClick={() => resetDraft()} disabled={disableBtn} type="button" className="flex focus:outline-none justify-center items-center space-x-2 py-2 px-6 rounded-full flex items-center space-x-3 shadow hover:bg-gray-100">
                                         <TrashIcon className="h-5 text-black"/><span>Delete draft</span>
                                     </button>
-                                    <button type="button" className="border-2 border-black py-2 px-6 rounded-full bg-black text-white focus:outline-none hover:bg-transparent hover:text-black transition-colors duration-200">
+                                    <button disabled={disableBtn} type="button" className="border-2 border-black py-2 px-6 rounded-full bg-black text-white focus:outline-none hover:bg-transparent hover:text-black transition-colors duration-200">
                                         Proceed to mint
                                     </button>
                                 </div>
                                 </div>
                                 <div className="md:col-span-1 prose max-w-full">
+                                    <div className="md:col-span-1 prose max-w-full">
+                                        <div className="px-4 sm:px-0 mb-8">
+                                            <h3>Photo preview</h3>
+                                        </div>
+                                    </div>
                                     <IKContext urlEndpoint={`https://ik.imagekit.io/${process.env.NEXT_PUBLIC_IMAGEKIT_ID}/`}>
                                     { draft ? 
                                         <IKImage className="w-full" 

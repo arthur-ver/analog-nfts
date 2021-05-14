@@ -5,14 +5,16 @@ import prisma from '../../lib/prisma'
 
 export default async (req: NextApiRequest, res: NextApiResponse) => {
     const { body } = req
-    const { photoCID, photoCDN } = body
+    const { photoCID, photoCDN, photoCDNid, s3Key } = body
     const token = await jwt.getToken({ req, secret, signingKey, encryptionKey, encryption })
-    if (token && req.method === 'POST' && photoCID && photoCDN) {
+    if (token && req.method === 'POST' && photoCID && photoCDN && photoCDNid && s3Key) {
         try {
             const draft = await prisma.draftNft.create({
                 data: {
                     photoCID,
                     photoCDN,
+                    photoCDNid,
+                    s3Key,
                     user: {
                         connect: {
                             id: token.id
