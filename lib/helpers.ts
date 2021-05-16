@@ -5,7 +5,7 @@ const getFileExtension = (filename: string) => {
     return filename.slice((filename.lastIndexOf('.') - 1 >>> 0) + 2)
 }
 
-const getSignedUrl = async (address: string, contentType: string) => {
+const getSignedUrl = async (contentType: string) => {
     try {
         const response = await fetch(`${prefixURL}/api/getPresignedUrl`, {
             headers: {
@@ -13,8 +13,7 @@ const getSignedUrl = async (address: string, contentType: string) => {
             },
             method: 'POST',
             body: JSON.stringify({ 
-                creatorAddress: address,
-                contentType: contentType
+                contentType
             }),
         })
         if (response.status == 200) {
@@ -118,4 +117,26 @@ const deleteDraft = async(id: string) => {
     }
 }
 
-export { getFileExtension, getSignedUrl, uploadFile, uploadToImagekit, createDraft, deleteDraft }
+const sha256 = async (url: string) => {
+    try {
+        const response = await fetch(`${prefixURL}/api/sha256`, {
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            method: 'POST',
+            body: JSON.stringify({
+                url
+            }),
+        })
+        if (response.status == 200) {
+            const jsonResponse = await response.json()
+            return jsonResponse.hash
+        } else {
+            throw { sha256: true }
+        }
+    } catch (e) {
+        throw e
+    }
+}
+
+export { getFileExtension, getSignedUrl, uploadFile, uploadToImagekit, createDraft, deleteDraft, sha256 }

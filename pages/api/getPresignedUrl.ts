@@ -19,11 +19,11 @@ const s3 = new S3({
 
 export default async (req: NextApiRequest, res: NextApiResponse) => {
     const { body } = req
-    const { creatorAddress, contentType } = body
+    const { contentType } = body
     const token = await jwt.getToken({ req, secret, signingKey, encryptionKey, encryption })
-    if (token && req.method === 'POST' && creatorAddress && contentType) {
+    if (token && req.method === 'POST' && contentType) {
         const fileName = `${Date.now()}_${generateRandomString(6)}`
-        const key = `${creatorAddress}/${fileName}`
+        const key = `${token.address}/${fileName}`
         const getSignedUrl = new Promise((resolve, reject) => {
             s3.getSignedUrl('putObject', {
                 Bucket: bucket,

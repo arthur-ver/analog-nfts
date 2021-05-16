@@ -4,7 +4,7 @@ import React, { useState, useEffect, useCallback } from 'react'
 import { useZora } from '../components/ZoraProvider'
 import * as nsfwjs from 'nsfwjs'
 import { Dropzone } from '../components/Dropzone'
-import { getFileExtension, getSignedUrl, uploadFile, uploadToImagekit, createDraft, deleteDraft } from '../lib/helpers'
+import { getFileExtension, getSignedUrl, uploadFile, uploadToImagekit, createDraft, deleteDraft, sha256 } from '../lib/helpers'
 import NProgress from 'nprogress'
 import { XIcon, TrashIcon } from '@heroicons/react/outline'
 import { SignedResponse } from '../util/types'
@@ -14,16 +14,25 @@ import Error from 'next/error'
 import prisma from '../lib/prisma'
 import { HorizontalProgress } from '../components/HorizontalProgress'
 import { IKImage, IKContext } from 'imagekitio-react'
+import { useRouter } from 'next/router'
+import { constructMediaData, generateMetadata, isMediaDataVerified } from '@zoralabs/zdk'
+
+const initialMetadataForm = Object.freeze({
+    title: '',
+    description: ''
+})
 
 const Mint = ({ draft }) => {
     const [session, loading] = useSession()
     const {address} = useZora()
+    const router = useRouter()
     const [creatorShare, setCreatorShare] = useState<number>(5)
     const [disableBtn, setDisableBtn] = useState<boolean>(true)
     const [uploading, setUploading] = useState<boolean>(false)
     const [imagePreview, setImagePreview] = useState<any>(undefined)
     const [file, setFile] = useState<File | undefined>(undefined)
     const [stepState, setStepState] = useState<number>()
+    const [metadataForm, setMetadataForm] = React.useState(initialMetadataForm)
     const [newDraft, setNewDraft] = useState<any>({
         id: null,
         metadataCID: null,
@@ -34,6 +43,13 @@ const Mint = ({ draft }) => {
         description: null
     })
 
+    const handleChange = (e) => {
+        setMetadataForm({
+            ...metadataForm,
+            [e.target.name]: e.target.value.trim()
+        })
+    }
+
     const upload = async (e) => {
         e.preventDefault()
         NProgress.start()
@@ -42,7 +58,7 @@ const Mint = ({ draft }) => {
         try {
             const predictions = await nsfwCheck()
             if (predictions[0].probability > 0.65) {
-                const signedResponse: SignedResponse = await getSignedUrl(address, file.type)
+                const signedResponse: SignedResponse = await getSignedUrl(file.type)
                 const uploadResponse: Response = await uploadFile(file, signedResponse.url)
                 const cid_v0 = uploadResponse.headers.get('x-fleek-ipfs-hash-v0')
                 const s3FileUrl = signedResponse.key
@@ -89,16 +105,7 @@ const Mint = ({ draft }) => {
         try {
             const deleteDraftResponse = await deleteDraft(draft ? draft.id : newDraft.id)
             if (deleteDraftResponse) {
-                setNewDraft({
-                    id: null,
-                    metadataCID: null,
-                    photoCDN: null,
-                    photoCID: null,
-                    title: null,
-                    userId: null,
-                    description: null
-                })
-                setStepState(0)
+                router.reload()
             }
         } catch (e) {
             console.log('Error while deleteting draft')
@@ -106,7 +113,26 @@ const Mint = ({ draft }) => {
             setDisableBtn(false)
             NProgress.done()
         }
-    } 
+    }
+
+    const saveMetadata = async () => {
+        NProgress.start()
+        setDisableBtn(true)
+        try {
+            //const hash = await sha256(draft ? draft.s3Key : newDraft.s3Key)
+            const metadataJSON = generateMetadata('zora-20210101', {
+                name: metadataForm.title,
+                description: metadataForm.description,
+                mimeType: 'text/plain',
+                version: 'zora-20210101',
+            })
+        } catch (e) {
+            console.log('Error while saving metadata')
+        } finally {
+            setDisableBtn(false)
+            NProgress.done()
+        }
+    }
 
     const onDrop = useCallback(acceptedFiles => {
         if (acceptedFiles.length == 0) return
@@ -183,10 +209,10 @@ const Mint = ({ draft }) => {
                             <div className="md:grid md:grid-cols-3 md:gap-6">
                                 <div className="md:col-span-2 prose max-w-full">
                                     <div className="px-4 py-5 bg-white space-y-6 sm:p-6">
-                                        <input type="text" name="title" id="title" maxLength={60} className="mt-1 py-4 px-4 w-full shadow-sm rounded-lg focus:ring-black focus:border-black border-gray-200" placeholder="Title" />
+                                        <input name="title" onChange={handleChange} type="text" maxLength={60} className="mt-1 py-4 px-4 w-full shadow-sm rounded-lg focus:ring-black focus:border-black border-gray-200" placeholder="Title" />
                                     <div>
                                         <div className="mt-1">
-                                            <textarea id="description" name="description" maxLength={255} rows={3} className="mt-1 py-4 px-4 w-full shadow-sm rounded-lg focus:ring-black focus:border-black border-gray-200" placeholder="Brief description"></textarea>
+                                            <textarea name="description" onChange={handleChange} maxLength={255} rows={3} className="mt-1 py-4 px-4 w-full shadow-sm rounded-lg focus:ring-black focus:border-black border-gray-200" placeholder="Brief description"></textarea>
                                         </div>
                                         <p className="mt-2 text-sm text-gray-500">
                                             Max 255 characters.
@@ -207,7 +233,7 @@ const Mint = ({ draft }) => {
                                     <button onClick={() => resetDraft()} disabled={disableBtn} type="button" className="flex focus:outline-none justify-center items-center space-x-2 py-2 px-6 rounded-full flex items-center space-x-3 shadow hover:bg-gray-100">
                                         <TrashIcon className="h-5 text-black"/><span>Delete draft</span>
                                     </button>
-                                    <button disabled={disableBtn} type="button" className="border-2 border-black py-2 px-6 rounded-full bg-black text-white focus:outline-none hover:bg-transparent hover:text-black transition-colors duration-200">
+                                    <button onClick={() => saveMetadata()} disabled={disableBtn} type="button" className="border-2 border-black py-2 px-6 rounded-full bg-black text-white focus:outline-none hover:bg-transparent hover:text-black transition-colors duration-200">
                                         Proceed to mint
                                     </button>
                                 </div>
@@ -221,11 +247,11 @@ const Mint = ({ draft }) => {
                                     <IKContext urlEndpoint={`https://ik.imagekit.io/${process.env.NEXT_PUBLIC_IMAGEKIT_ID}/`}>
                                     { draft ? 
                                         <IKImage className="w-full" 
-                                            path={draft.photoCDN} transformation={[{"height": "900","width": "720"}]}
+                                            path={draft.photoCDN} transformation={[{"width": "720"}]}
                                             loading="lazy"
                                             lqip={{ active: true, blur: 10 }} />
                                     :   <IKImage className="w-full" 
-                                            path={newDraft.photoCDN} transformation={[{"height": "900","width": "720"}]}
+                                            path={newDraft.photoCDN} transformation={[{"width": "720"}]}
                                             loading="lazy"
                                             lqip={{ active: true, blur: 10 }} />
                                     }

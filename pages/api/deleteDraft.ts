@@ -45,7 +45,6 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
                 throw 'Draft does not belong to user'
             }
         } catch (error) {
-            console.log(error)
             res.status(500).json({ error })
         }
     } else {
