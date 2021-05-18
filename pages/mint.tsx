@@ -119,7 +119,7 @@ const Mint = ({ draft }) => {
         NProgress.start()
         setDisableBtn(true)
         try {
-            //const hash = await sha256(draft ? draft.s3Key : newDraft.s3Key)
+            //const hash = await sha256(draft ? draft.photoS3 : newDraft.photoS3)
             const metadataJSON = generateMetadata('zora-20210101', {
                 name: metadataForm.title,
                 description: metadataForm.description,

@@ -70,7 +70,7 @@ const uploadToImagekit = async (url: string, fileName: string, fileExtension: st
     }
 }
 
-const createDraft = async (photoCID: string, photoCDN: string, photoCDNid: string, s3Key: string) => {
+const createDraft = async (photoCID: string, photoCDN: string, photoCDNid: string, photoS3: string) => {
     try {
         const response = await fetch(`${prefixURL}/api/saveDraft`, {
             headers: {
@@ -81,7 +81,7 @@ const createDraft = async (photoCID: string, photoCDN: string, photoCDNid: strin
                 photoCID,
                 photoCDN,
                 photoCDNid,
-                s3Key
+                photoS3
             }),
         })
         if (response.status == 200) {

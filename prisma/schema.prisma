@@ -44,7 +44,8 @@ model draftNft {
   metadataCID   String?   @db.VarChar(255) @unique @map(name: "metadata_cid")
   photoCDN      String    @db.VarChar(255) @unique @map(name: "photo_cdn")
   photoCDNid    String    @unique @map(name: "photo_cdn_id")
-  s3Key         String    @unique @map(name: "s3_key")
+  photoS3       String    @unique @map(name: "photo_s3")
+  metadataS3    String?   @unique @map(name: "metadata_s3")
   title         String?   @db.VarChar(60)
   description   String?   @db.VarChar(255)
 
