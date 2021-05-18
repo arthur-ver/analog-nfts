@@ -34,9 +34,9 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
                 where: { user: { id: token.id } }
             })
             if (draft) {
-                const { photoCDNid, s3Key } = draft
+                const { photoCDNid, photoS3 } = draft
                 const imagekitResponse = await imagekit.deleteFile(photoCDNid)
-                const s3Response = await s3.deleteObject({ Bucket: bucket, Key: s3Key }).promise()
+                const s3Response = await s3.deleteObject({ Bucket: bucket, Key: photoS3 }).promise()
                 const deleteDraft = await prisma.draftNft.deleteMany({
                     where: { user: { id: token.id } }
                 })
